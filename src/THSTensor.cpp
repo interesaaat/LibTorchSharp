@@ -28,61 +28,76 @@ struct tensor_wrapper
     tensor_wrapper(at::Tensor t) : tensor(t) {}
 };
 
-// Create a variable containing a tensor composed of ones.
-EXPORT_API(tensor_wrapper *) Ones(const int lenght)
+// Return the internal tensor implementation
+EXPORT_API(THTensor *) GetTHTensor(const tensor_wrapper * tensor)
 {
-    const auto options = torch::autograd::TensorOptions().dtype(at::ScalarType::Float);
+    return tensor->tensor.unsafeGetTensorImpl();
+}
 
-    int64_t data[] = { 1, 3, 224, 224 };
+// Return the internal tensor implementation
+EXPORT_API(void *) Tensor_data(const tensor_wrapper * tensor)
+{
+    return tensor->tensor.data_ptr();;
+}
 
-    auto tensor = torch::ones(at::IntList(data, lenght), options);
+// Create a variable containing a tensor composed of ones.
+EXPORT_API(tensor_wrapper *) Tensor_ones(const int64_t * sizes, const int lenght, const int8_t scalar_type, const char * device, const bool requires_grad)
+{
+    auto options = torch::autograd::TensorOptions()
+        .dtype(at::ScalarType(scalar_type))
+        .device(device)
+        .requires_grad(requires_grad);
+    at::Tensor tensor = torch::ones(at::IntList(sizes, lenght), options);
+
     return new tensor_wrapper(tensor);
 }
 
-EXPORT_API(module_wrapper *) Load(const char* filename, void* result)
+EXPORT_API(const char*) Tensor_device(const tensor_wrapper * tensor)
+{
+    auto device = tensor->tensor.device();
+    auto device_type = DeviceTypeName(device.type());
+    auto device_index = std::to_string(device.index());
+    auto str_device = device_type + ":" + device_index;
+    return makeResultString(str_device.c_str());
+}
+
+EXPORT_API(module_wrapper *) Module_load(const char* filename)
 {
     auto module = torch::jit::load(filename);
+
     return new module_wrapper(module);
 }
 
-EXPORT_API(int) GetNumberOfModules(const module_wrapper * module_wrappers)
+EXPORT_API(int) Get_number_of_modules(const module_wrapper * module_wrappers)
 {
     return module_wrappers->module->get_modules().size();
 }
 
-EXPORT_API(const char*) GetModule(const module_wrapper * module_wrappers, int index)
+EXPORT_API(const char*) Module_get(const module_wrapper * module_wrappers, int index)
 {
     auto modules = module_wrappers->module->get_modules();
     auto keys = modules.keys();
     auto key = keys[index].c_str();
 
-    size_t size = sizeof(key);
-    char* result = new char[size];
-    strncpy(result, key, size);
-    result[size - 1] = '\0';
-    return result;
+    return makeResultString(key);
 }
 
-EXPORT_API(THTensor *) Forward(const module_wrapper * module_wrapper, const tensor_wrapper * tensor_wrapper)
+EXPORT_API(tensor_wrapper *) Forward(const module_wrapper * mwrapper, const tensor_wrapper * twrapper)
 {
-    std::ofstream out;
-    out.open("out");
     std::vector<torch::jit::IValue> inputs;
 
-    inputs.push_back(tensor_wrapper->tensor);
-    out << "Tensor loaded.\n";
-    at::Tensor result;
-    try {
-        result = module_wrapper->module->forward(inputs).toTensor();
-    }
-    catch (std::exception e)
-    {
-        out << "Exception.";
-        out << e.what();
-        out.close();
-    }
-    out << "Forward.\n";
-    out << result.slice(/*dim=*/1, /*start=*/0, /*end=*/5) << '\n';
-    out.close();
-    return result.unsafeReleaseTensorImpl();
+    inputs.push_back(twrapper->tensor);
+
+    at::Tensor tensor = mwrapper->module->forward(inputs).toTensor();
+   
+    return new tensor_wrapper(tensor);
+}
+
+const char * makeResultString(const char * str)
+{
+    size_t size = sizeof(str);
+    char* result = new char[size];
+    strncpy(result, str, size);
+    result[size - 1] = '\0';
+    return result;
 }

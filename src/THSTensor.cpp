@@ -35,6 +35,18 @@ struct tensor_wrapper
     tensor_wrapper(at::Tensor t) : tensor(t) {}
 };
 
+//struct no_grad_wrapper
+//{
+//    std::shared_ptr<torch::NoGradGuard> no_grad;
+//
+//    no_grad_wrapper(torch::NoGradGuard n) : no_grad(std::make_shared<torch::NoGradGuard>(n)) {}
+//};
+
+struct tensor_wrapper2
+{
+    tensor_wrapper* ptr;
+};
+
 // Return the internal tensor implementation
 EXPORT_API(THTensor *) GetTHTensor(const tensor_wrapper * tensor)
 {
@@ -44,7 +56,7 @@ EXPORT_API(THTensor *) GetTHTensor(const tensor_wrapper * tensor)
 // Return the internal tensor implementation
 EXPORT_API(void *) Tensor_data(const tensor_wrapper * tensor)
 {
-    return tensor->tensor.data_ptr();;
+    return tensor->tensor.data_ptr();
 }
 
 // Create a variable containing a tensor composed of ones.
@@ -114,12 +126,7 @@ EXPORT_API(long) Get_number_of_children(const nn_module_wrapper * module_wrapper
 
 EXPORT_API(const char *) Module_name(const nn_module_wrapper * module_wrappers)
 {
-    //std::ofstream out;
-    //out.open("c:/name");
-    auto name = makeResultString(module_wrappers->module->name());
-    /*out << name;
-    out.close();*/
-    return name;
+    return makeResultString(module_wrappers->module->name());
 }
 
 EXPORT_API(const char*) Module_jit_get(const jit_module_wrapper * module_wrappers, int index)
@@ -156,6 +163,71 @@ EXPORT_API(tensor_wrapper *) Forward_functional(const nn_module_wrapper * mwrapp
     return new tensor_wrapper(tensor);
 }
 
+EXPORT_API(void) Zero_grad_functional(const nn_module_wrapper * mwrapper)
+{
+    mwrapper->module->as<torch::nn::Functional>()->zero_grad();
+}
+
+EXPORT_API(void) Param_functional(const nn_module_wrapper * mwrapper, tensor_wrapper2* (*allocator)(size_t length))
+{
+    auto parameters = mwrapper->module->as<torch::nn::Functional>()->parameters();
+    tensor_wrapper2 *result = allocator(parameters.size());
+
+    for (int i = 0; i < parameters.size(); i++)
+    {
+        result[i].ptr = new tensor_wrapper(parameters[i]);
+    }
+}
+
+EXPORT_API(void) Param_linear(const nn_module_wrapper * mwrapper, tensor_wrapper2* (*allocator)(size_t length))
+{
+    auto parameters = mwrapper->module->as<torch::nn::Linear>()->parameters();
+    tensor_wrapper2 *result = allocator(parameters.size());
+
+    for (int i = 0; i < parameters.size(); i++)
+    {
+        result[i].ptr = new tensor_wrapper(parameters[i]);
+    }
+}
+
+EXPORT_API(tensor_wrapper *) Grad(const tensor_wrapper * wrapper)
+{
+    return new tensor_wrapper(wrapper->tensor.grad());
+}
+
+EXPORT_API(tensor_wrapper *) Sub_(const tensor_wrapper * swrapper, const tensor_wrapper * twrapper)
+{
+    torch::NoGradGuard no_grad;
+   /* std::ofstream out;
+    out.open("log");
+    try
+    {*/
+        at::Tensor src = swrapper->tensor;
+        auto result = new tensor_wrapper(src.sub_(twrapper->tensor));
+        //out.close();
+        return result;
+   /* }
+    catch (std::exception& e)
+    {
+        out << e.what();
+        out.close();
+    }*/
+}
+
+EXPORT_API(tensor_wrapper *) Mul(const tensor_wrapper * src, const float scalar)
+{
+    torch::NoGradGuard no_grad;
+    return new tensor_wrapper(src->tensor.mul(scalar));
+}
+
+// Not working
+//EXPORT_API(no_grad_wrapper *) No_grad()
+//{
+//    torch::NoGradGuard no_grad;
+//
+//    return new no_grad_wrapper(no_grad);
+//}
+
 EXPORT_API(tensor_wrapper *) Forward_linear(const nn_module_wrapper * mwrapper, const tensor_wrapper * twrapper)
 {
     at::Tensor tensor = mwrapper->module->as<torch::nn::Linear>()->forward(twrapper->tensor);
@@ -163,9 +235,19 @@ EXPORT_API(tensor_wrapper *) Forward_linear(const nn_module_wrapper * mwrapper, 
     return new tensor_wrapper(tensor);
 }
 
-EXPORT_API(tensor_wrapper *) MSELoss(tensor_wrapper * src, tensor_wrapper trg, int64_t reduction)
+EXPORT_API(void) Zero_grad_linear(const nn_module_wrapper * mwrapper)
 {
-    return new tensor_wrapper(torch::mse_loss(src->tensor, trg.tensor, reduction));
+    mwrapper->module->as<torch::nn::Linear>()->zero_grad();
+}
+
+EXPORT_API(tensor_wrapper *) Loss_mse(tensor_wrapper * src, tensor_wrapper * trg, int64_t reduction)
+{
+    return new tensor_wrapper(torch::mse_loss(src->tensor, trg->tensor, reduction));
+}
+
+EXPORT_API(void) Backward(tensor_wrapper * t)
+{
+    t->tensor.backward();
 }
 
 const char * makeResultString(string str)

@@ -1,6 +1,10 @@
 #pragma once
 
-#include "stdafx.h"
-#include "TH/THTensor.h"
+#include <aten/core/Tensor.h>
 
-const char* makeResultString(string input);
+struct tensor_wrapper
+{
+    at::Tensor tensor;
+
+    tensor_wrapper(at::Tensor t) : tensor(t) {}
+};

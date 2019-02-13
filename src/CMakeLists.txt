@@ -1,6 +1,9 @@
 project(LibTorchSharp)
 
 target_sources(LibTorchSharp PUBLIC 
-				stdafx.h
+				THSJITModule.h
+				THSTensor.h
+				Utils.h
+				THSJITModule.cpp
 				THSTensor.cpp
-				THSTensor.h)
+				Utils.cpp)

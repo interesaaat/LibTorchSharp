@@ -1,6 +1,8 @@
-#pragma once
-
+#include "Stdafx.h"
 #include "THSTensor.h"
+#include "Utils.h"
+
+#include "TH/THTensor.h"
 
 #include <c10/core/ScalarType.h>
 #include <c10/util/Optional.h>
@@ -14,25 +16,11 @@
 #include <iostream>
 #include <exception>
 
-struct jit_module_wrapper
-{
-    std::shared_ptr<torch::jit::script::Module> module;
-
-    jit_module_wrapper(std::shared_ptr<torch::jit::script::Module> m) : module(m) {}
-};
-
 struct nn_module_wrapper
 {
     std::shared_ptr<torch::nn::Module> module;
 
     nn_module_wrapper(std::shared_ptr<torch::nn::Module> m) : module(m) {}
-};
-
-struct tensor_wrapper
-{
-    at::Tensor tensor;
-
-    tensor_wrapper(at::Tensor t) : tensor(t) {}
 };
 
 //struct no_grad_wrapper
@@ -89,7 +77,7 @@ EXPORT_API(const char*) Tensor_device(const tensor_wrapper * tensor)
     auto device_index = std::to_string(device.index());
     string str_device = device_type + ":" + device_index;
 
-    return makeResultString(str_device);
+    return makeSharableString(str_device);
 }
 
 
@@ -107,18 +95,6 @@ EXPORT_API(nn_module_wrapper *) Module_linear(const int input, const int output)
     return new nn_module_wrapper(linear.ptr());
 }
 
-EXPORT_API(jit_module_wrapper *) Module_load(const char* filename)
-{
-    auto module = torch::jit::load(filename);
-
-    return new jit_module_wrapper(module);
-}
-
-EXPORT_API(long) Get_number_of_modules(const jit_module_wrapper * module_wrappers)
-{
-    return module_wrappers->module->get_modules().size();
-}
-
 EXPORT_API(long) Get_number_of_children(const nn_module_wrapper * module_wrappers)
 {
     return module_wrappers->module->children().size();
@@ -126,15 +102,7 @@ EXPORT_API(long) Get_number_of_children(const nn_module_wrapper * module_wrapper
 
 EXPORT_API(const char *) Module_name(const nn_module_wrapper * module_wrappers)
 {
-    return makeResultString(module_wrappers->module->name());
-}
-
-EXPORT_API(const char*) Module_jit_get(const jit_module_wrapper * module_wrappers, int index)
-{
-    auto modules = module_wrappers->module->get_modules();
-    auto keys = modules.keys();
-
-    return makeResultString(keys[index]);
+    return makeSharableString(module_wrappers->module->name());
 }
 
 EXPORT_API(const char*) Module_nn_get(const nn_module_wrapper * module_wrappers, int index)
@@ -142,18 +110,7 @@ EXPORT_API(const char*) Module_nn_get(const nn_module_wrapper * module_wrappers,
     auto modules = module_wrappers->module->named_children();
     auto keys = modules.keys();
 
-    return makeResultString(keys[index]); 
-}
-
-EXPORT_API(tensor_wrapper *) Forward_jit(const jit_module_wrapper * mwrapper, const tensor_wrapper * twrapper)
-{
-    std::vector<torch::jit::IValue> inputs;
-
-    inputs.push_back(twrapper->tensor);
-
-    at::Tensor tensor = mwrapper->module->forward(inputs).toTensor();
-   
-    return new tensor_wrapper(tensor);
+    return makeSharableString(keys[index]); 
 }
 
 EXPORT_API(tensor_wrapper *) Forward_functional(const nn_module_wrapper * mwrapper, const tensor_wrapper * twrapper)
@@ -248,13 +205,4 @@ EXPORT_API(tensor_wrapper *) Loss_mse(tensor_wrapper * src, tensor_wrapper * trg
 EXPORT_API(void) Backward(tensor_wrapper * t)
 {
     t->tensor.backward();
-}
-
-const char * makeResultString(string str)
-{
-    size_t size = sizeof(str);
-    char* result = new char[size];
-    strncpy(result, str.c_str(), size);
-    result[size - 1] = '\0';
-    return result;
 }

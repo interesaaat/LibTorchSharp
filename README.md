@@ -8,7 +8,7 @@
 * Python source code win32 compiled
 
 ### How to generate project files
- `cmake -DTorch_DIR="libtorch_DIR\share\cmake\Torch" -DPYTHON="Python_source_DIR" -DLIBTORCH="libtorch_DIR" . -G "Visual Studio 15 2017 Win64"`
+ `cmake -DTorch_DIR="YOUR_libtorch_DIR" -DPython_DIR="YOUR_Python_source_DIR" . -G "Visual Studio 15 2017 Win64"`
 
 ### How to build
 * Open the generated solution file, click on Properties on the LibTorch project and select Dynamic Library instead of Static in the Configuration type tab (remeber to also change the target extension).

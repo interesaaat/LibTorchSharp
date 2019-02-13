@@ -7,13 +7,13 @@ find_package(Torch REQUIRED)
 add_library(LibTorchSharp SHARED "")
 add_subdirectory(src)
 
-# Add Python includes and libs
-include_directories("${PYTHON}/Include")
-include_directories("${PYTHON}/PC")
-FILE(GLOB PYTHON_LIBRARIES "${PYTHON}/PCbuild/win32/*.lib")
+# Add Python bindings
+include_directories("${Python_DIR}/Include")
+include_directories("${Python_DIR}/PC")
+FILE(GLOB PYTHON_LIBRARIES "${Python_DIR}/PCbuild/win32/*.lib")
 
-# Add LibTorch libs
-FILE(GLOB LIBTORCH_LIBRARIES "${LIBTORCH}/lib/*.lib")
+# Add LibTorch bindings
+include_directories(${TORCH_INCLUDE_DIRS})
 
-target_link_libraries(LibTorchSharp ${TORCH_LIBRARIES} ${LIBTORCH_LIBRARIES} ${PYTHON_LIBRARIES})
+target_link_libraries(LibTorchSharp ${TORCH_LIBRARIES} ${PYTHON_LIBRARIES})
 set_property(TARGET LibTorchSharp PROPERTY CXX_STANDARD 11)

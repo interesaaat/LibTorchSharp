@@ -4,11 +4,16 @@ project(LibTorchSharp)
 find_package(Torch REQUIRED)
 
 # Include files into project
-add_library(LibTorchSharp src/THSTensor.cpp)
+add_library(LibTorchSharp SHARED "")
 add_subdirectory(src)
 
-# Add Python bindings
-include_directories(${PYTHON_INCLUDE_DIRS})
+# Add Python includes and libs
+include_directories("${PYTHON}/Include")
+include_directories("${PYTHON}/PC")
+FILE(GLOB PYTHON_LIBRARIES "${PYTHON}/PCbuild/win32/*.lib")
 
-target_link_libraries(LibTorchSharp "${TORCH_LIBRARIES}")
+# Add LibTorch libs
+FILE(GLOB LIBTORCH_LIBRARIES "${LIBTORCH}/lib/*.lib")
+
+target_link_libraries(LibTorchSharp ${TORCH_LIBRARIES} ${LIBTORCH_LIBRARIES} ${PYTHON_LIBRARIES})
 set_property(TARGET LibTorchSharp PROPERTY CXX_STANDARD 11)

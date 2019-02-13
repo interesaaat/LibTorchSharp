@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Stdafx.h"
+#include "stdafx.h"
 #include "TH/THTensor.h"
 
 const char* makeResultString(string input);

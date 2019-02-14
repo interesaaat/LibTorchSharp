@@ -1,54 +1,19 @@
-#include "Stdafx.h"
 #include "THSTensor.h"
-#include "Utils.h"
+
+#include "stdafx.h"
+#include "utils.h"
 
 #include "TH/THTensor.h"
-
-#include <c10/core/ScalarType.h>
-#include <c10/util/Optional.h>
-#include "torch/csrc/autograd/generated/variable_factories.h"
-#include "torch/csrc/jit/script/module.h"
 #include "torch/csrc/utils/python_arg_parser.h"
 #include "torch/torch.h"
-#include "torch/script.h"
 
-#include <fstream>
-#include <iostream>
-#include <exception>
-
-struct nn_module_wrapper
-{
-    std::shared_ptr<torch::nn::Module> module;
-
-    nn_module_wrapper(std::shared_ptr<torch::nn::Module> m) : module(m) {}
-};
-
-//struct no_grad_wrapper
-//{
-//    std::shared_ptr<torch::NoGradGuard> no_grad;
-//
-//    no_grad_wrapper(torch::NoGradGuard n) : no_grad(std::make_shared<torch::NoGradGuard>(n)) {}
-//};
-
-struct tensor_wrapper2
-{
-    tensor_wrapper* ptr;
-};
-
-// Return the internal tensor implementation
-EXPORT_API(THTensor *) GetTHTensor(const tensor_wrapper * tensor)
-{
-    return tensor->tensor.unsafeGetTensorImpl();
-}
-
-// Return the internal tensor implementation
-EXPORT_API(void *) Tensor_data(const tensor_wrapper * tensor)
-{
-    return tensor->tensor.data_ptr();
-}
-
-// Create a variable containing a tensor composed of ones.
-EXPORT_API(tensor_wrapper *) Tensor_ones(const int64_t * sizes, const int lenght, const int8_t scalar_type, const char * device, const bool requires_grad)
+// Create a variable tensor containing a tensor composed of ones.
+EXPORT_API(TensorWrapper *) THS_ones(
+    const int64_t * sizes, 
+    const int lenght, 
+    const int8_t scalar_type, 
+    const char * device, 
+    const bool requires_grad)
 {
     auto options = torch::autograd::TensorOptions()
         .dtype(at::ScalarType(scalar_type))
@@ -56,10 +21,16 @@ EXPORT_API(tensor_wrapper *) Tensor_ones(const int64_t * sizes, const int lenght
         .requires_grad(requires_grad);
     at::Tensor tensor = torch::ones(at::IntList(sizes, lenght), options);
 
-    return new tensor_wrapper(tensor);
+    return new TensorWrapper(tensor);
 }
 
-EXPORT_API(tensor_wrapper *) Tensor_randn(const int64_t * sizes, const int lenght, const int8_t scalar_type, const char * device, const bool requires_grad)
+// Returns a variable tensor filled with random numbers from a normal distribution with mean 0 and variance 1.
+EXPORT_API(TensorWrapper *) THS_randn(
+    const int64_t * sizes, 
+    const int lenght, 
+    const int8_t scalar_type, 
+    const char * device, 
+    const bool requires_grad)
 {
     auto options = torch::autograd::TensorOptions()
         .dtype(at::ScalarType(scalar_type))
@@ -67,142 +38,57 @@ EXPORT_API(tensor_wrapper *) Tensor_randn(const int64_t * sizes, const int lengh
         .requires_grad(requires_grad);
     at::Tensor tensor = torch::randn(at::IntList(sizes, lenght), options);
 
-    return new tensor_wrapper(tensor);
+    return new TensorWrapper(tensor);
 }
 
-EXPORT_API(const char*) Tensor_device(const tensor_wrapper * tensor)
+// Return the internal tensor implementation
+EXPORT_API(THTensor *) THS_getTHTensorUnsafe(const TensorWrapper * twrapper)
 {
-    auto device = tensor->tensor.device();
+    return twrapper->tensor.unsafeGetTensorImpl();
+}
+
+// Return the tensor data
+// Note that calling GetTHTensorUnsafe and get data from there won't work 
+// (see the note [Tensor versus Variable in C++] in Aten\core\Tensor.h)
+EXPORT_API(void *) THS_data(const TensorWrapper * twrapper)
+{
+    return twrapper->tensor.data_ptr();
+}
+
+// Return a printable version of the device storing the tensor.
+EXPORT_API(const char*) THS_device(const TensorWrapper * twrapper)
+{
+    auto device = twrapper->tensor.device();
     auto device_type = DeviceTypeName(device.type());
     auto device_index = std::to_string(device.index());
-    string str_device = device_type + ":" + device_index;
 
-    return makeSharableString(str_device);
+    return makeSharableString(device_type + ":" + device_index);
 }
 
-
-EXPORT_API(nn_module_wrapper *) Module_relu()
+// Get the gradients for the input tensor.
+EXPORT_API(TensorWrapper *) THS_Grad(const TensorWrapper * twrapper)
 {
-    auto relu = torch::nn::Functional(torch::relu);
-
-    return new nn_module_wrapper(relu.ptr());
+    return new TensorWrapper(twrapper->tensor.grad());
 }
 
-EXPORT_API(nn_module_wrapper *) Module_linear(const int input, const int output)
-{
-    auto linear = torch::nn::Linear(input, output);
-
-    return new nn_module_wrapper(linear.ptr());
-}
-
-EXPORT_API(long) Get_number_of_children(const nn_module_wrapper * module_wrappers)
-{
-    return module_wrappers->module->children().size();
-}
-
-EXPORT_API(const char *) Module_name(const nn_module_wrapper * module_wrappers)
-{
-    return makeSharableString(module_wrappers->module->name());
-}
-
-EXPORT_API(const char*) Module_nn_get(const nn_module_wrapper * module_wrappers, int index)
-{
-    auto modules = module_wrappers->module->named_children();
-    auto keys = modules.keys();
-
-    return makeSharableString(keys[index]); 
-}
-
-EXPORT_API(tensor_wrapper *) Forward_functional(const nn_module_wrapper * mwrapper, const tensor_wrapper * twrapper)
-{
-    at::Tensor tensor = mwrapper->module->as<torch::nn::Functional>()->forward(twrapper->tensor);
-
-    return new tensor_wrapper(tensor);
-}
-
-EXPORT_API(void) Zero_grad_functional(const nn_module_wrapper * mwrapper)
-{
-    mwrapper->module->as<torch::nn::Functional>()->zero_grad();
-}
-
-EXPORT_API(void) Param_functional(const nn_module_wrapper * mwrapper, tensor_wrapper2* (*allocator)(size_t length))
-{
-    auto parameters = mwrapper->module->as<torch::nn::Functional>()->parameters();
-    tensor_wrapper2 *result = allocator(parameters.size());
-
-    for (int i = 0; i < parameters.size(); i++)
-    {
-        result[i].ptr = new tensor_wrapper(parameters[i]);
-    }
-}
-
-EXPORT_API(void) Param_linear(const nn_module_wrapper * mwrapper, tensor_wrapper2* (*allocator)(size_t length))
-{
-    auto parameters = mwrapper->module->as<torch::nn::Linear>()->parameters();
-    tensor_wrapper2 *result = allocator(parameters.size());
-
-    for (int i = 0; i < parameters.size(); i++)
-    {
-        result[i].ptr = new tensor_wrapper(parameters[i]);
-    }
-}
-
-EXPORT_API(tensor_wrapper *) Grad(const tensor_wrapper * wrapper)
-{
-    return new tensor_wrapper(wrapper->tensor.grad());
-}
-
-EXPORT_API(tensor_wrapper *) Sub_(const tensor_wrapper * swrapper, const tensor_wrapper * twrapper)
+// Inplace subtraction with no grad
+EXPORT_API(TensorWrapper *) THS_Sub_(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper)
 {
     torch::NoGradGuard no_grad;
-   /* std::ofstream out;
-    out.open("log");
-    try
-    {*/
-        at::Tensor src = swrapper->tensor;
-        auto result = new tensor_wrapper(src.sub_(twrapper->tensor));
-        //out.close();
-        return result;
-   /* }
-    catch (std::exception& e)
-    {
-        out << e.what();
-        out.close();
-    }*/
+
+    at::Tensor left = lwrapper->tensor;
+    return new TensorWrapper(left.sub_(rwrapper->tensor));
 }
 
-EXPORT_API(tensor_wrapper *) Mul(const tensor_wrapper * src, const float scalar)
+// Multiply the input tensor by the scalar. With no grad.
+EXPORT_API(TensorWrapper *) THS_Mul(const TensorWrapper * twrapper, const float scalar)
 {
     torch::NoGradGuard no_grad;
-    return new tensor_wrapper(src->tensor.mul(scalar));
+    return new TensorWrapper(twrapper->tensor.mul(scalar));
 }
 
-// Not working
-//EXPORT_API(no_grad_wrapper *) No_grad()
-//{
-//    torch::NoGradGuard no_grad;
-//
-//    return new no_grad_wrapper(no_grad);
-//}
-
-EXPORT_API(tensor_wrapper *) Forward_linear(const nn_module_wrapper * mwrapper, const tensor_wrapper * twrapper)
+// Backard pass starting from the input tensor.
+EXPORT_API(void) THS_Backward(TensorWrapper * twrapper)
 {
-    at::Tensor tensor = mwrapper->module->as<torch::nn::Linear>()->forward(twrapper->tensor);
-
-    return new tensor_wrapper(tensor);
-}
-
-EXPORT_API(void) Zero_grad_linear(const nn_module_wrapper * mwrapper)
-{
-    mwrapper->module->as<torch::nn::Linear>()->zero_grad();
-}
-
-EXPORT_API(tensor_wrapper *) Loss_mse(tensor_wrapper * src, tensor_wrapper * trg, int64_t reduction)
-{
-    return new tensor_wrapper(torch::mse_loss(src->tensor, trg->tensor, reduction));
-}
-
-EXPORT_API(void) Backward(tensor_wrapper * t)
-{
-    t->tensor.backward();
+    twrapper->tensor.backward();
 }

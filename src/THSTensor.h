@@ -2,9 +2,14 @@
 
 #include <aten/core/Tensor.h>
 
-struct tensor_wrapper
+struct TensorWrapper
 {
     at::Tensor tensor;
 
-    tensor_wrapper(at::Tensor t) : tensor(t) {}
+    TensorWrapper(at::Tensor t) : tensor(t) {}
+};
+
+struct TensorPointerWrapper
+{
+    TensorWrapper* ptr;
 };

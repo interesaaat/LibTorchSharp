@@ -32,7 +32,6 @@ EXPORT_API(const char *) NN_GetModuleName(const NNModuleWrapper * mwrapper)
     return makeSharableString(mwrapper->module->name());
 }
 
-// Functional
 // Trigger a forward pass over an input functional module (e.g., activation functions) using the input tensor. 
 EXPORT_API(TensorWrapper *) NN_functionalModule_Forward(
     const NNModuleWrapper * mwrapper,
@@ -43,27 +42,6 @@ EXPORT_API(TensorWrapper *) NN_functionalModule_Forward(
     return new TensorWrapper(result);
 }
 
-// Zero-ing the grad parameters for the input functional module.
-EXPORT_API(void) NN_functionalModule_ZeroGrad(const NNModuleWrapper * mwrapper)
-{
-    mwrapper->module->as<torch::nn::Functional>()->zero_grad();
-}
-
-// Get the parameters of the input functional module.
-EXPORT_API(void) NN_functionalModule_GetParameters(
-    const NNModuleWrapper * mwrapper, 
-    TensorPointerWrapper* (*allocator)(size_t length))
-{
-    auto parameters = mwrapper->module->as<torch::nn::Functional>()->parameters();
-    TensorPointerWrapper *result = allocator(parameters.size());
-
-    for (int i = 0; i < parameters.size(); i++)
-    {
-        result[i].ptr = new TensorWrapper(parameters[i]);
-    }
-}
-
-// Linear
 // Trigger a forward pass over an input linear module (e.g., activation functions) using the input tensor. 
 EXPORT_API(TensorWrapper *) NN_linearModule_Forward(
     const NNModuleWrapper * mwrapper,
@@ -75,17 +53,17 @@ EXPORT_API(TensorWrapper *) NN_linearModule_Forward(
 }
 
 // Zero-ing the grad parameters for the input functional module.
-EXPORT_API(void) NN_linearModule_ZeroGrad(const NNModuleWrapper * mwrapper)
+EXPORT_API(void) NN_ZeroGrad(const NNModuleWrapper * mwrapper)
 {
-    mwrapper->module->as<torch::nn::Linear>()->zero_grad();
+    mwrapper->module->zero_grad();
 }
 
-// Get the parameters of the input functional module.
-EXPORT_API(void) NN_linearModule_GetParameters(
+// Get the parameters of the module.
+EXPORT_API(void) NN_GetParameters(
     const NNModuleWrapper * mwrapper, 
     TensorPointerWrapper* (*allocator)(size_t length))
 {
-    auto parameters = mwrapper->module->as<torch::nn::Linear>()->parameters();
+    auto parameters = mwrapper->module->parameters();
     TensorPointerWrapper *result = allocator(parameters.size());
 
     for (int i = 0; i < parameters.size(); i++)
@@ -98,4 +76,20 @@ EXPORT_API(void) NN_linearModule_GetParameters(
 EXPORT_API(TensorWrapper *) NN_LossMSE(TensorWrapper * srcwrapper, TensorWrapper * trgwrapper, int64_t reduction)
 {
     return new TensorWrapper(torch::mse_loss(srcwrapper->tensor, trgwrapper->tensor, reduction));
+}
+
+// Set up the Adam optimizer
+EXPORT_API(NNOptimizerWrapper *) NN_OptimizerAdam(NNModuleWrapper* modules, int len, double learnig_rate)
+{
+    std::vector<at::Tensor> params;
+
+    for (int i = 0; i < len; i++)
+    {
+        for (auto param : modules[i].module->parameters())
+        {
+            params.push_back(param);
+        }
+    }
+
+    return new NNOptimizerWrapper(std::make_shared<torch::optim::Adam>(torch::optim::Adam(params, learnig_rate)));
 }

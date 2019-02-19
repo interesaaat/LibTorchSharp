@@ -5,9 +5,10 @@
 #include "utils.h"
 
 // Return a ReLu layer.
-EXPORT_API(NNModuleWrapper *) NN_reluModule()
+EXPORT_API(NNModuleWrapper *) NN_reluModule(NNModuleWrapper * parent)
 {
     auto relu = torch::nn::Functional(torch::relu);
+    //parent->module.register_module("fc1", NULL);
 
     return new NNModuleWrapper(relu.ptr());
 }
@@ -61,14 +62,14 @@ EXPORT_API(void) NN_ZeroGrad(const NNModuleWrapper * mwrapper)
 // Get the parameters of the module.
 EXPORT_API(void) NN_GetParameters(
     const NNModuleWrapper * mwrapper, 
-    TensorPointerWrapper* (*allocator)(size_t length))
+    TensorWrapper** (*allocator)(size_t length))
 {
     auto parameters = mwrapper->module->parameters();
-    TensorPointerWrapper *result = allocator(parameters.size());
+    TensorWrapper **result = allocator(parameters.size());
 
     for (int i = 0; i < parameters.size(); i++)
     {
-        result[i].ptr = new TensorWrapper(parameters[i]);
+        result[i] = new TensorWrapper(parameters[i]);
     }
 }
 
@@ -79,13 +80,13 @@ EXPORT_API(TensorWrapper *) NN_LossMSE(TensorWrapper * srcwrapper, TensorWrapper
 }
 
 // Set up the Adam optimizer
-EXPORT_API(NNOptimizerWrapper *) NN_OptimizerAdam(NNModuleWrapper* modules, int len, double learnig_rate)
+EXPORT_API(NNOptimizerWrapper *) NN_OptimizerAdam(torch::nn::Module* modules, int len, double learnig_rate)
 {
     std::vector<at::Tensor> params;
 
     for (int i = 0; i < len; i++)
     {
-        for (auto param : modules[i].module->parameters())
+        for (auto param : modules[i].parameters())
         {
             params.push_back(param);
         }

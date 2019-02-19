@@ -8,8 +8,3 @@ struct TensorWrapper
 
     TensorWrapper(at::Tensor t) : tensor(t) {}
 };
-
-struct TensorPointerWrapper
-{
-    TensorWrapper* ptr;
-};

@@ -5,10 +5,9 @@
 #include "utils.h"
 
 // Return a ReLu layer.
-EXPORT_API(NNModuleWrapper *) NN_reluModule(NNModuleWrapper * parent)
+EXPORT_API(NNModuleWrapper *) NN_reluModule()
 {
     auto relu = torch::nn::Functional(torch::relu);
-    //parent->module.register_module("fc1", NULL);
 
     return new NNModuleWrapper(relu.ptr());
 }

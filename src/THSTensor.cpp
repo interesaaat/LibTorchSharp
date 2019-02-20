@@ -3,8 +3,7 @@
 #include "stdafx.h"
 #include "utils.h"
 
-#include "TH/THTensor.h"
-#include "torch/csrc/utils/python_arg_parser.h"
+#include "TH/THTensor.h""
 #include "torch/torch.h"
 
 // Create a variable tensor containing a tensor composed of ones.
@@ -15,7 +14,7 @@ EXPORT_API(TensorWrapper *) THS_ones(
     const char * device, 
     const bool requires_grad)
 {
-    auto options = torch::autograd::TensorOptions()
+    auto options = at::TensorOptions()
         .dtype(at::ScalarType(scalar_type))
         .device(device)
         .requires_grad(requires_grad);
@@ -33,7 +32,7 @@ EXPORT_API(TensorWrapper *) THS_randn(
     const char * device, 
     const bool requires_grad)
 {
-    auto options = torch::autograd::TensorOptions()
+    auto options = at::TensorOptions()
         .dtype(at::ScalarType(scalar_type))
         .device(device)
         .requires_grad(requires_grad);

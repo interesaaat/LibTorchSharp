@@ -19,6 +19,7 @@ EXPORT_API(TensorWrapper *) THS_ones(
         .dtype(at::ScalarType(scalar_type))
         .device(device)
         .requires_grad(requires_grad);
+
     at::Tensor tensor = torch::ones(at::IntList(sizes, lenght), options);
 
     return new TensorWrapper(tensor);
@@ -36,6 +37,7 @@ EXPORT_API(TensorWrapper *) THS_randn(
         .dtype(at::ScalarType(scalar_type))
         .device(device)
         .requires_grad(requires_grad);
+
     at::Tensor tensor = torch::randn(at::IntList(sizes, lenght), options);
 
     return new TensorWrapper(tensor);
@@ -55,14 +57,15 @@ EXPORT_API(void *) THS_data(const TensorWrapper * twrapper)
     return twrapper->tensor.data_ptr();
 }
 
-// Return a printable version of the device storing the tensor.
-EXPORT_API(const char*) THS_device(const TensorWrapper * twrapper)
+// Return a printable version of the device type storing the tensor.
+EXPORT_API(const char*) THS_deviceType(const TensorWrapper * twrapper)
 {
     auto device = twrapper->tensor.device();
     auto device_type = DeviceTypeName(device.type());
-    auto device_index = std::to_string(device.index());
 
-    return makeSharableString(device_type + ":" + device_index);
+    std::transform(device_type.begin(), device_type.end(), device_type.begin(), ::tolower);
+
+    return makeSharableString(device_type);
 }
 
 // Get the gradients for the input tensor.

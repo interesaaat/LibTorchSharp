@@ -53,9 +53,15 @@ EXPORT_API(TensorWrapper *) NN_linearModule_Forward(
 }
 
 // Zero-ing the grad parameters for the input functional module.
-EXPORT_API(void) NN_ZeroGrad(const NNModuleWrapper * mwrapper)
+EXPORT_API(void) NN_Module_ZeroGrad(const NNModuleWrapper * mwrapper)
 {
     mwrapper->module->zero_grad();
+}
+
+// Zero-ing the grad parameters for the input optimizer.
+EXPORT_API(void) NN_Optimizer_ZeroGrad(const NNOptimizerWrapper * owrapper)
+{
+    owrapper->optimizer->zero_grad();
 }
 
 // Get the parameters of the module.
@@ -79,13 +85,13 @@ EXPORT_API(TensorWrapper *) NN_LossMSE(TensorWrapper * srcwrapper, TensorWrapper
 }
 
 // Set up the Adam optimizer
-EXPORT_API(NNOptimizerWrapper *) NN_OptimizerAdam(torch::nn::Module* modules, int len, double learnig_rate)
+EXPORT_API(NNOptimizerWrapper *) NN_OptimizerAdam(NNModuleWrapper** modules, int len, double learnig_rate)
 {
     std::vector<at::Tensor> params;
 
     for (int i = 0; i < len; i++)
     {
-        for (auto param : modules[i].parameters())
+        for (auto param : modules[i]->module->parameters())
         {
             params.push_back(param);
         }
@@ -93,3 +99,10 @@ EXPORT_API(NNOptimizerWrapper *) NN_OptimizerAdam(torch::nn::Module* modules, in
 
     return new NNOptimizerWrapper(std::make_shared<torch::optim::Adam>(torch::optim::Adam(params, learnig_rate)));
 }
+
+// Zero-ing the grad parameters for the input optimizer.
+EXPORT_API(void) NN_Optimizer_Step(const NNOptimizerWrapper * owrapper)
+{
+    owrapper->optimizer->step();
+}
+

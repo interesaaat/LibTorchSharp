@@ -85,16 +85,13 @@ EXPORT_API(TensorWrapper *) NN_LossMSE(TensorWrapper * srcwrapper, TensorWrapper
 }
 
 // Set up the Adam optimizer
-EXPORT_API(NNOptimizerWrapper *) NN_OptimizerAdam(NNModuleWrapper** modules, int len, double learnig_rate)
+EXPORT_API(NNOptimizerWrapper *) NN_OptimizerAdam(TensorWrapper** parameters, int len, double learnig_rate)
 {
     std::vector<at::Tensor> params;
 
     for (int i = 0; i < len; i++)
     {
-        for (auto param : modules[i]->module->parameters())
-        {
-            params.push_back(param);
-        }
+        params.push_back(parameters[i]->tensor);
     }
 
     return new NNOptimizerWrapper(std::make_shared<torch::optim::Adam>(torch::optim::Adam(params, learnig_rate)));

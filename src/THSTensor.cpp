@@ -48,6 +48,12 @@ EXPORT_API(THTensor *) THS_getTHTensorUnsafe(const TensorWrapper * twrapper)
     return twrapper->tensor.unsafeGetTensorImpl();
 }
 
+// Return the internal tensor implementation
+EXPORT_API(void) THS_delete(const TensorWrapper * twrapper)
+{
+    delete(&twrapper->tensor);
+}
+
 // Return the tensor data
 // Note that calling GetTHTensorUnsafe and get data from there won't work 
 // (see the note [Tensor versus Variable in C++] in Aten\core\Tensor.h)
@@ -71,6 +77,13 @@ EXPORT_API(const char*) THS_deviceType(const TensorWrapper * twrapper)
 EXPORT_API(TensorWrapper *) THS_Grad(const TensorWrapper * twrapper)
 {
     return new TensorWrapper(twrapper->tensor.grad());
+}
+
+// Inplace subtraction with no grad
+EXPORT_API(TensorWrapper *) THS_View(const TensorWrapper * lwrapper, const int64_t * shape, const int length)
+{
+    at::Tensor result = lwrapper->tensor.view(at::IntList(shape, length));
+    return new TensorWrapper(result);
 }
 
 // Inplace subtraction with no grad

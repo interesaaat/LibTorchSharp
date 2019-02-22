@@ -41,12 +41,6 @@ EXPORT_API(const char *) NN_GetModuleName(const NNModuleWrapper * mwrapper)
     return makeSharableString(mwrapper->module->name());
 }
 
-// Return whether the moduls is  in trianing or inference mode.
-EXPORT_API(bool) NN_IsTraining(const NNModuleWrapper * mwrapper)
-{
-    return (mwrapper->module->is_training());
-}
-
 // Apply a ReLu activation function on the input tensor. 
 EXPORT_API(TensorWrapper *) NN_ReluModule_Forward(const TensorWrapper * tensor)
 {
@@ -67,6 +61,15 @@ EXPORT_API(TensorWrapper *) NN_MaxPool2DModule_Forward(const TensorWrapper * ten
 EXPORT_API(TensorWrapper *) NN_LogSoftMaxModule_Forward(const TensorWrapper * tensor, const int64_t dimension)
 {
     at::Tensor result = torch::log_softmax(tensor->tensor, dimension);
+
+    return new TensorWrapper(result);
+}
+}
+
+// Apply a log soft max on the input tensor. 
+EXPORT_API(TensorWrapper *) NN_FeatureDropout_Forward(const TensorWrapper * tensor)
+{
+    at::Tensor result = torch::nn::FeatureDropout()->forward(tensor->tensor);
 
     return new TensorWrapper(result);
 }
@@ -125,10 +128,16 @@ EXPORT_API(void) NN_GetParameters(
     }
 }
 
-// Compute the MSE loss between the input and target tensors, using a spceificed reduction type.
+// Compute the MSE loss between the input and target tensors, using a specified reduction type.
 EXPORT_API(TensorWrapper *) NN_LossMSE(TensorWrapper * srcwrapper, TensorWrapper * trgwrapper, int64_t reduction)
 {
     return new TensorWrapper(torch::mse_loss(srcwrapper->tensor, trgwrapper->tensor, reduction));
+}
+
+// Compute the NLL loss between the input and target tensors, using a specified reduction type.
+EXPORT_API(TensorWrapper *) NN_LossNLL(TensorWrapper * srcwrapper, TensorWrapper * trgwrapper)
+{
+    return new TensorWrapper(torch::nll_loss(srcwrapper->tensor, trgwrapper->tensor));
 }
 
 // Set up the Adam optimizer
@@ -142,6 +151,21 @@ EXPORT_API(NNOptimizerWrapper *) NN_OptimizerAdam(TensorWrapper** parameters, in
     }
 
     return new NNOptimizerWrapper(std::make_shared<torch::optim::Adam>(torch::optim::Adam(params, learnig_rate)));
+}
+
+// Set up the SGD optimizer
+EXPORT_API(NNOptimizerWrapper *) NN_OptimizerSGD(TensorWrapper** parameters, int len, double learnig_rate, double momentum)
+{
+    std::vector<at::Tensor> params;
+    auto options = torch::optim::SGDOptions(learnig_rate)
+        .momentum(momentum);
+
+    for (int i = 0; i < len; i++)
+    {
+        params.push_back(parameters[i]->tensor);
+    }
+
+    return new NNOptimizerWrapper(std::make_shared<torch::optim::SGD>(torch::optim::SGD(params, options)));
 }
 
 // Zero-ing the grad parameters for the input optimizer.

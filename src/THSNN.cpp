@@ -20,6 +20,15 @@ EXPORT_API(NNModuleWrapper *) NN_linearModule(const int inputSize, const int out
     return new NNModuleWrapper(linear.ptr());
 }
 
+// Return a Conv2d layer.
+EXPORT_API(NNModuleWrapper *) NN_conv2dModule(int64_t inputChannel, int64_t outputChannel, size_t kernelSize)
+{
+    auto options = torch::nn::Conv2dOptions(inputChannel, outputChannel, kernelSize);
+    auto conv = torch::nn::Conv2d(options);
+
+    return new NNModuleWrapper(conv.ptr());
+}
+
 // Get the number of children modules.
 EXPORT_API(long) NN_GetNumberOfChildren(const NNModuleWrapper * mwrapper)
 {
@@ -32,12 +41,40 @@ EXPORT_API(const char *) NN_GetModuleName(const NNModuleWrapper * mwrapper)
     return makeSharableString(mwrapper->module->name());
 }
 
-// Trigger a forward pass over an input functional module (e.g., activation functions) using the input tensor. 
-EXPORT_API(TensorWrapper *) NN_functionalModule_Forward(
-    const NNModuleWrapper * mwrapper,
-    const TensorWrapper * tensor)
+// Return whether the moduls is  in trianing or inference mode.
+EXPORT_API(bool) NN_IsTraining(const NNModuleWrapper * mwrapper)
 {
-    at::Tensor result = mwrapper->module->as<torch::nn::Functional>()->forward(tensor->tensor);
+    return (mwrapper->module->is_training());
+}
+
+// Apply a ReLu activation function on the input tensor. 
+EXPORT_API(TensorWrapper *) NN_ReluModule_Forward(const TensorWrapper * tensor)
+{
+    at::Tensor result = torch::relu(tensor->tensor);
+
+    return new TensorWrapper(result);
+}
+
+// Apply a maxpool 2d on the input tensor. 
+EXPORT_API(TensorWrapper *) NN_MaxPool2DModule_Forward(const TensorWrapper * tensor, const int64_t kernelSize)
+{
+    at::Tensor result = torch::max_pool2d(tensor->tensor, kernelSize);
+
+    return new TensorWrapper(result);
+}
+
+// Apply a log soft max on the input tensor. 
+EXPORT_API(TensorWrapper *) NN_LogSoftMaxModule_Forward(const TensorWrapper * tensor, const int64_t dimension)
+{
+    at::Tensor result = torch::log_softmax(tensor->tensor, dimension);
+
+    return new TensorWrapper(result);
+}
+
+// Apply drop out on the input tensor. 
+EXPORT_API(TensorWrapper *) NN_DropoutModule_Forward(const TensorWrapper * tensor, double probability, bool isTraining)
+{
+    at::Tensor result = torch::dropout(tensor->tensor, probability, isTraining);
 
     return new TensorWrapper(result);
 }
@@ -48,6 +85,16 @@ EXPORT_API(TensorWrapper *) NN_linearModule_Forward(
     const TensorWrapper * tensor)
 {
     at::Tensor result = mwrapper->module->as<torch::nn::Linear>()->forward(tensor->tensor);
+
+    return new TensorWrapper(result);
+}
+
+// Trigger a forward pass over an input linear module (e.g., activation functions) using the input tensor. 
+EXPORT_API(TensorWrapper *) NN_conv2DModule_Forward(
+    const NNModuleWrapper * mwrapper,
+    const TensorWrapper * tensor)
+{
+    at::Tensor result = mwrapper->module->as<torch::nn::Conv2d>()->forward(tensor->tensor);
 
     return new TensorWrapper(result);
 }

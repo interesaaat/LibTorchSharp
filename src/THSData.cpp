@@ -1,6 +1,8 @@
 #include "THSData.h"
 
 #include "stdafx.h"
+#include "utils.h"
+
 #include "THSTensor.h"
 #include <torch/torch.h>
 
@@ -26,15 +28,17 @@ EXPORT_API(void) Data_LoaderMNIST(
     const size_t dataset_size = dataset.size().value();
 
     auto loader = torch::data::make_data_loader<torch::data::samplers::SequentialSampler>(
-            std::move(dataset), batchSize);
+        std::move(dataset), batchSize);
 
     const TensorWrapper **data = dataAllocator(dataset_size);
     const TensorWrapper **target = targetAllocator(dataset_size);
     int i = 0;
 
-    for (auto& batch : *loader) 
+    for (auto& batch : *loader)
     {
         data[i] = new TensorWrapper(batch.data);
         target[i] = new TensorWrapper(batch.target);
+        i++;
     }
+
 }

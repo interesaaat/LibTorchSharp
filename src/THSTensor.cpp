@@ -49,7 +49,7 @@ EXPORT_API(THTensor *) THS_getTHTensorUnsafe(const TensorWrapper * twrapper)
 }
 
 // Return the internal tensor implementation
-EXPORT_API(void) THS_delete(const TensorWrapper * twrapper)
+EXPORT_API(void) THS_Delete(const TensorWrapper * twrapper)
 {
     delete(&twrapper->tensor);
 }

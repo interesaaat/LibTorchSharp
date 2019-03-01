@@ -5,14 +5,14 @@
 
 #include "THSTensor.h"
 #include <torch/torch.h>
+#include <Windows.h>
+#include <exception>
 
 // Load an MNIST dataset from a file
-EXPORT_API(void) Data_LoaderMNIST(
-    const char* filename, 
-    int64_t batchSize, 
-    bool isTrain,
-    const TensorWrapper** (*dataAllocator)(size_t length),
-    const TensorWrapper** (*targetAllocator)(size_t length))
+EXPORT_API(DatasetIteratorWrapper *) Data_LoaderMNIST(
+    const char* filename,
+    int64_t batchSize,
+    bool isTrain)
 {
     torch::data::datasets::MNIST::Mode mode = torch::data::datasets::MNIST::Mode::kTrain;
 
@@ -25,20 +25,33 @@ EXPORT_API(void) Data_LoaderMNIST(
         .map(torch::data::transforms::Normalize<>(0.1307, 0.3081))
         .map(torch::data::transforms::Stack<>());
 
-    const size_t dataset_size = dataset.size().value();
+    size_t size = dataset.size().value();
 
     auto loader = torch::data::make_data_loader<torch::data::samplers::SequentialSampler>(
-        std::move(dataset), batchSize);
+        std::move(dataset), batchSize).release();
 
-    const TensorWrapper **data = dataAllocator(dataset_size);
-    const TensorWrapper **target = targetAllocator(dataset_size);
-    int i = 0;
+    auto iter = new DatasetIterator(loader->begin(), size, loader->end(), (void*)loader);
 
-    for (auto& batch : *loader)
-    {
-        data[i] = new TensorWrapper(batch.data);
-        target[i] = new TensorWrapper(batch.target);
-        i++;
-    }
+    return new DatasetIteratorWrapper(iter);
+}
 
+// Gets the size in byte of some dataset wrapped as iterator
+EXPORT_API(size_t) Data_Size(DatasetIteratorWrapper * wrapper)
+{
+    return wrapper->iter->size;
+}
+
+// Advance the pointer of the target iterator
+EXPORT_API(bool) Data_MoveNext(DatasetIteratorWrapper * wrapper)
+{
+    ++(wrapper->iter->currentIter);
+
+    return (wrapper->iter->currentIter != wrapper->iter->endIter);
+}
+
+// Get the curret data and target tensors pointed by the iterator
+EXPORT_API(void) Data_Current(DatasetIteratorWrapper * wrapper, TensorWrapper** data, TensorWrapper** target)
+{
+    data[0] = new TensorWrapper((wrapper->iter->currentIter)->data);
+    target[0] = new TensorWrapper((wrapper->iter->currentIter)->target);
 }

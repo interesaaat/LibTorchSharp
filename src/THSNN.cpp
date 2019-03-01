@@ -64,7 +64,6 @@ EXPORT_API(TensorWrapper *) NN_LogSoftMaxModule_Forward(const TensorWrapper * te
 
     return new TensorWrapper(result);
 }
-}
 
 // Apply a log soft max on the input tensor. 
 EXPORT_API(TensorWrapper *) NN_FeatureDropout_Forward(const TensorWrapper * tensor)

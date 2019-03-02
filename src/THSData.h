@@ -1,32 +1,68 @@
 #pragma once
 
+#include "stdafx.h"
+#include "THSTensor.h"
+
 #include <torch/torch.h>
 
-class DatasetIterator
+class DatasetIteratorBase
 {
-    public:
-       torch::data::Iterator<torch::data::Example<>> currentIter;
-       void* tmp;
-      torch::data::Iterator<torch::data::Example<>> endIter;
-    size_t size;
+public:
+    explicit
+    DatasetIteratorBase() {}
+    virtual size_t getSize() = 0;
+    virtual bool moveNext() = 0;
+    virtual void current(TensorWrapper** data, TensorWrapper** target) = 0;
+    virtual void reset() = 0;
+};
 
-   DatasetIterator(torch::data::Iterator<torch::data::Example<>> i, size_t size, torch::data::Iterator<torch::data::Example<>> e, void * t) :
+template<typename Dataset>
+class DatasetIterator : public DatasetIteratorBase
+{
+public:
+    DatasetIterator(
+        torch::data::Iterator<torch::data::Example<>> i,
+        size_t s,
+        std::shared_ptr<Dataset> l) : 
+        DatasetIteratorBase(), 
         currentIter(torch::data::Iterator<torch::data::Example<>>(i)),
-        endIter(torch::data::Iterator<torch::data::Example<>>(std::move(e))),
-            size(size),
-   tmp(t) {}
+        size(s),
+        loaderPointer(l) {}
 
-   ~DatasetIterator()
-   {
-       delete(&currentIter);
-       delete(&endIter);
-       delete(tmp);
-   }
+        size_t getSize();
+        bool moveNext();
+        void current(TensorWrapper** data, TensorWrapper** target);
+        void reset();
+
+private:
+        std::shared_ptr<Dataset> loaderPointer;
+        torch::data::Iterator<torch::data::Example<>> currentIter;
+        size_t size;
 };
 
-struct DatasetIteratorWrapper
+template<typename Dataset>
+inline size_t DatasetIterator<Dataset>::getSize()
 {
-    DatasetIterator * iter;
+    return size;
+}
 
-    DatasetIteratorWrapper(DatasetIterator * i) : iter(i) {}
-};
+template<typename Dataset>
+inline bool DatasetIterator<Dataset>::moveNext()
+{
+    ++currentIter;
+
+    return currentIter != loaderPointer.get()->end();
+}
+
+template<typename Dataset>
+inline void DatasetIterator<Dataset>::current(TensorWrapper** data, TensorWrapper** target)
+{
+    data[0] = new TensorWrapper(currentIter->data);
+    target[0] = new TensorWrapper(currentIter->target);
+}
+
+template<typename Dataset>
+inline void DatasetIterator<Dataset>::reset()
+{
+    currentIter = loaderPointer.get()->begin();
+}

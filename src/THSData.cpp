@@ -9,7 +9,7 @@
 #include <exception>
 
 // Load an MNIST dataset from a file
-EXPORT_API(DatasetIteratorWrapper *) Data_LoaderMNIST(
+EXPORT_API(DatasetIteratorBase *) Data_LoaderMNIST(
     const char* filename,
     int64_t batchSize,
     bool isTrain)
@@ -28,30 +28,39 @@ EXPORT_API(DatasetIteratorWrapper *) Data_LoaderMNIST(
     size_t size = dataset.size().value();
 
     auto loader = torch::data::make_data_loader<torch::data::samplers::SequentialSampler>(
-        std::move(dataset), batchSize).release();
+        std::move(dataset), batchSize);
 
-    auto iter = new DatasetIterator(loader->begin(), size, loader->end(), (void*)loader);
+    std::shared_ptr<torch::data::DataLoader<std::remove_reference_t<torch::data::datasets::MapDataset<torch::data::datasets::MapDataset<torch::data::datasets::MNIST, torch::data::transforms::Normalize<at::Tensor>>, torch::data::transforms::Stack<torch::data::Example<at::Tensor, at::Tensor>>>&>, torch::data::samplers::SequentialSampler>> shared = std::move(loader);
 
-    return new DatasetIteratorWrapper(iter);
+    return new DatasetIterator<torch::data::DataLoader<std::remove_reference_t<torch::data::datasets::MapDataset<torch::data::datasets::MapDataset<torch::data::datasets::MNIST, torch::data::transforms::Normalize<at::Tensor>>, torch::data::transforms::Stack<torch::data::Example<at::Tensor, at::Tensor>>>&>, torch::data::samplers::SequentialSampler>>(shared->begin(), size, shared);
 }
 
-// Gets the size in byte of some dataset wrapped as iterator
-EXPORT_API(size_t) Data_Size(DatasetIteratorWrapper * wrapper)
+//// Gets the size in byte of some dataset wrapped as iterator
+EXPORT_API(size_t) Data_Size(DatasetIteratorBase * iterator)
 {
-    return wrapper->iter->size;
+    return iterator->getSize();
 }
 
 // Advance the pointer of the target iterator
-EXPORT_API(bool) Data_MoveNext(DatasetIteratorWrapper * wrapper)
+EXPORT_API(bool) Data_MoveNext(DatasetIteratorBase * iterator)
 {
-    ++(wrapper->iter->currentIter);
-
-    return (wrapper->iter->currentIter != wrapper->iter->endIter);
+    return iterator->moveNext();
 }
 
 // Get the curret data and target tensors pointed by the iterator
-EXPORT_API(void) Data_Current(DatasetIteratorWrapper * wrapper, TensorWrapper** data, TensorWrapper** target)
+EXPORT_API(void) Data_Current(DatasetIteratorBase * iterator, TensorWrapper** data, TensorWrapper** target)
 {
-    data[0] = new TensorWrapper((wrapper->iter->currentIter)->data);
-    target[0] = new TensorWrapper((wrapper->iter->currentIter)->target);
+    iterator->current(data, target);
+}
+
+// Reset the iterator
+EXPORT_API(void) Data_Reset(DatasetIteratorBase * iterator)
+{
+    iterator->reset();
+}
+
+// Dispose the iterator
+EXPORT_API(void) Data_Dispose(DatasetIteratorBase * iterator)
+{
+    delete iterator;
 }

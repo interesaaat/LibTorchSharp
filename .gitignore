@@ -3,3 +3,9 @@
 ################################################################################
 
 /.vs/LibTorchSharp/v15
+/CMakeFiles
+/LibTorchSharp.dir/Release
+/src/CMakeFiles
+/src/cmake_install.cmake
+/x64
+/cmake_install.cmake

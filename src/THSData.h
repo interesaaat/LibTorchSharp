@@ -57,8 +57,8 @@ inline bool DatasetIterator<Dataset>::moveNext()
 template<typename Dataset>
 inline void DatasetIterator<Dataset>::current(TensorWrapper** data, TensorWrapper** target)
 {
-    data[0] = new TensorWrapper(currentIter->data);
-    target[0] = new TensorWrapper(currentIter->target);
+    data[0] = new TensorWrapper(std::move(currentIter->data));
+    target[0] = new TensorWrapper(std::move(currentIter->target));
 }
 
 template<typename Dataset>

@@ -8,6 +8,9 @@
 #include <Windows.h>
 #include <exception>
 
+typedef torch::data::DataLoader<
+    std::remove_reference_t<torch::data::datasets::MapDataset<torch::data::datasets::MapDataset<torch::data::datasets::MNIST, torch::data::transforms::Normalize<at::Tensor>>, torch::data::transforms::Stack<torch::data::Example<at::Tensor, at::Tensor>>>&>, torch::data::samplers::SequentialSampler> MNIST_t;
+
 // Load an MNIST dataset from a file
 EXPORT_API(DatasetIteratorBase *) Data_LoaderMNIST(
     const char* filename,
@@ -30,9 +33,9 @@ EXPORT_API(DatasetIteratorBase *) Data_LoaderMNIST(
     auto loader = torch::data::make_data_loader<torch::data::samplers::SequentialSampler>(
         std::move(dataset), batchSize);
 
-    std::shared_ptr<torch::data::DataLoader<std::remove_reference_t<torch::data::datasets::MapDataset<torch::data::datasets::MapDataset<torch::data::datasets::MNIST, torch::data::transforms::Normalize<at::Tensor>>, torch::data::transforms::Stack<torch::data::Example<at::Tensor, at::Tensor>>>&>, torch::data::samplers::SequentialSampler>> shared = std::move(loader);
+    std::shared_ptr<MNIST_t> shared = std::move(loader);
 
-    return new DatasetIterator<torch::data::DataLoader<std::remove_reference_t<torch::data::datasets::MapDataset<torch::data::datasets::MapDataset<torch::data::datasets::MNIST, torch::data::transforms::Normalize<at::Tensor>>, torch::data::transforms::Stack<torch::data::Example<at::Tensor, at::Tensor>>>&>, torch::data::samplers::SequentialSampler>>(shared->begin(), size, shared);
+    return new DatasetIterator<MNIST_t>(shared->begin(), size, shared);
 }
 
 //// Gets the size in byte of some dataset wrapped as iterator

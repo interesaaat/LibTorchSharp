@@ -56,13 +56,13 @@ EXPORT_API(void) Data_Current(DatasetIteratorBase * iterator, TensorWrapper** da
     iterator->current(data, target);
 }
 
-// Reset the iterator
+// Reset the iterator.
 EXPORT_API(void) Data_Reset(DatasetIteratorBase * iterator)
 {
     iterator->reset();
 }
 
-// Dispose the iterator
+// Dispose the iterator.
 EXPORT_API(void) Data_Dispose(DatasetIteratorBase * iterator)
 {
     delete iterator;

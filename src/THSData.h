@@ -5,6 +5,7 @@
 
 #include <torch/torch.h>
 
+// Base non-generic interator class. Used to communicate with C#.
 class DatasetIteratorBase
 {
 public:
@@ -16,6 +17,7 @@ public:
     virtual void reset() = 0;
 };
 
+// Generic version of the iterator class.
 template<typename Dataset>
 class DatasetIterator : public DatasetIteratorBase
 {
@@ -40,12 +42,14 @@ private:
         size_t size;
 };
 
+// Get the total size in bytes of the input dataset.
 template<typename Dataset>
 inline size_t DatasetIterator<Dataset>::getSize()
 {
     return size;
 }
 
+// Advance the iterator.
 template<typename Dataset>
 inline bool DatasetIterator<Dataset>::moveNext()
 {
@@ -54,6 +58,7 @@ inline bool DatasetIterator<Dataset>::moveNext()
     return currentIter != loaderPointer.get()->end();
 }
 
+// Get the current object pointed by the iterator.
 template<typename Dataset>
 inline void DatasetIterator<Dataset>::current(TensorWrapper** data, TensorWrapper** target)
 {
@@ -61,6 +66,7 @@ inline void DatasetIterator<Dataset>::current(TensorWrapper** data, TensorWrappe
     target[0] = new TensorWrapper(std::move(currentIter->target));
 }
 
+// Reset the iterator to start from the beginning.
 template<typename Dataset>
 inline void DatasetIterator<Dataset>::reset()
 {

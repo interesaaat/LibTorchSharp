@@ -134,9 +134,9 @@ EXPORT_API(TensorWrapper *) NN_LossMSE(TensorWrapper * srcwrapper, TensorWrapper
 }
 
 // Compute the NLL loss between the input and target tensors, using a specified reduction type.
-EXPORT_API(TensorWrapper *) NN_LossNLL(TensorWrapper * srcwrapper, TensorWrapper * trgwrapper)
+EXPORT_API(TensorWrapper *) NN_LossNLL(TensorWrapper * srcwrapper, TensorWrapper * trgwrapper, int64_t reduction)
 {
-    return new TensorWrapper(torch::nll_loss(srcwrapper->tensor, trgwrapper->tensor));
+    return new TensorWrapper(torch::nll_loss(srcwrapper->tensor, trgwrapper->tensor, {} /*weights */, reduction));
 }
 
 // Set up the Adam optimizer

@@ -86,6 +86,19 @@ EXPORT_API(TensorWrapper *) THS_View(const TensorWrapper * lwrapper, const int64
     return new TensorWrapper(result);
 }
 
+// Sum up values
+EXPORT_API(TensorWrapper *) THS_Sum(const TensorWrapper * lwrapper)
+{
+    return new TensorWrapper(lwrapper->tensor.sum());
+}
+
+// Inplace subtraction with no grad
+EXPORT_API(TensorWrapper *) THS_Eq(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper)
+{
+    at::Tensor left = lwrapper->tensor;
+    return new TensorWrapper(left.eq(rwrapper->tensor));
+}
+
 // Inplace subtraction with no grad
 EXPORT_API(TensorWrapper *) THS_Sub_(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper)
 {
@@ -100,6 +113,12 @@ EXPORT_API(TensorWrapper *) THS_Mul(const TensorWrapper * twrapper, const float 
 {
     torch::NoGradGuard no_grad;
     return new TensorWrapper(twrapper->tensor.mul(scalar));
+}
+
+// Multiply the input tensor by the scalar. With no grad.
+EXPORT_API(TensorWrapper *) THS_Argmax(const TensorWrapper * twrapper, const int64_t dimension, bool keepDim)
+{
+    return new TensorWrapper(twrapper->tensor.argmax(dimension, keepDim));
 }
 
 // Backard pass starting from the input tensor.

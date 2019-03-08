@@ -49,7 +49,7 @@ EXPORT_API(THTensor *) THS_getTHTensorUnsafe(const TensorWrapper * twrapper)
 }
 
 // Return the internal tensor implementation
-EXPORT_API(void) THS_Delete(const TensorWrapper * twrapper)
+EXPORT_API(void) THS_Dispose(const TensorWrapper * twrapper)
 {
     delete twrapper;
 }
@@ -86,20 +86,24 @@ EXPORT_API(TensorWrapper *) THS_View(const TensorWrapper * lwrapper, const int64
     return new TensorWrapper(result);
 }
 
-// Sum up values
+// Returns the sum of all elements in the input tensor.
 EXPORT_API(TensorWrapper *) THS_Sum(const TensorWrapper * lwrapper)
 {
+    torch::NoGradGuard no_grad;
+
     return new TensorWrapper(lwrapper->tensor.sum());
 }
 
-// Inplace subtraction with no grad
+// Computes element-wise equality.
 EXPORT_API(TensorWrapper *) THS_Eq(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper)
 {
+    torch::NoGradGuard no_grad;
+
     at::Tensor left = lwrapper->tensor;
     return new TensorWrapper(left.eq(rwrapper->tensor));
 }
 
-// Inplace subtraction with no grad
+// Inplace subtraction with no grad.
 EXPORT_API(TensorWrapper *) THS_Sub_(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper)
 {
     torch::NoGradGuard no_grad;
@@ -115,9 +119,10 @@ EXPORT_API(TensorWrapper *) THS_Mul(const TensorWrapper * twrapper, const float 
     return new TensorWrapper(twrapper->tensor.mul(scalar));
 }
 
-// Multiply the input tensor by the scalar. With no grad.
+// Returns the indices of the maximum values of a tensor across a dimension.
 EXPORT_API(TensorWrapper *) THS_Argmax(const TensorWrapper * twrapper, const int64_t dimension, bool keepDim)
 {
+    torch::NoGradGuard no_grad;
     return new TensorWrapper(twrapper->tensor.argmax(dimension, keepDim));
 }
 

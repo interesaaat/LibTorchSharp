@@ -4,11 +4,16 @@
 #include "stdafx.h"
 #include "utils.h"
 
+// Set manually the seed.
+EXPORT_API(void) NN_Seed(const int64_t seed)
+{
+    torch::manual_seed(seed);
+}
+
 // Return a ReLu layer.
 EXPORT_API(NNModuleWrapper *) NN_reluModule()
 {
     auto relu = torch::nn::Functional(torch::relu);
-
     return new NNModuleWrapper(relu.ptr());
 }
 
@@ -171,5 +176,17 @@ EXPORT_API(NNOptimizerWrapper *) NN_OptimizerSGD(TensorWrapper** parameters, int
 EXPORT_API(void) NN_Optimizer_Step(const NNOptimizerWrapper * owrapper)
 {
     owrapper->optimizer->step();
+}
+
+// Dispose the optimizer.
+EXPORT_API(void) NN_Optimizer_Dispose(const NNOptimizerWrapper * owrapper)
+{
+    delete owrapper;
+}
+
+// Dispose the module.
+EXPORT_API(void) NN_Module_Dispose(const NNModuleWrapper * mwrapper)
+{
+    delete mwrapper;
 }
 

@@ -33,3 +33,9 @@ EXPORT_API(TensorWrapper *) JIT_forward(const JITModuleWrapper * mwrapper, const
 
     return new TensorWrapper(result.toTensor());
 }
+
+// Dispose the JIT.
+EXPORT_API(void) JIT_Dispose(const JITModuleWrapper * mwrapper)
+{
+    delete mwrapper;
+}

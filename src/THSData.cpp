@@ -9,7 +9,10 @@
 #include <exception>
 
 typedef torch::data::DataLoader<
-    std::remove_reference_t<torch::data::datasets::MapDataset<torch::data::datasets::MapDataset<torch::data::datasets::MNIST, torch::data::transforms::Normalize<at::Tensor>>, torch::data::transforms::Stack<torch::data::Example<at::Tensor, at::Tensor>>>&>, torch::data::samplers::SequentialSampler> MNIST_t;
+    std::remove_reference_t<torch::data::datasets::MapDataset<torch::data::datasets::MapDataset<torch::data::datasets::MNIST, torch::data::transforms::Normalize<at::Tensor>>, torch::data::transforms::Stack<torch::data::Example<at::Tensor, at::Tensor>>>&>, torch::data::samplers::SequentialSampler> MNISTTrain_t;
+
+typedef torch::data::DataLoader<
+    std::remove_reference_t<torch::data::datasets::MapDataset<torch::data::datasets::MapDataset<torch::data::datasets::MNIST, torch::data::transforms::Normalize<at::Tensor>>, torch::data::transforms::Stack<torch::data::Example<at::Tensor, at::Tensor>>>&>, torch::data::samplers::RandomSampler> MNISTTest_t;
 
 // Load an MNIST dataset from a file
 EXPORT_API(DatasetIteratorBase *) Data_LoaderMNIST(
@@ -30,12 +33,23 @@ EXPORT_API(DatasetIteratorBase *) Data_LoaderMNIST(
 
     size_t size = dataset.size().value();
 
-    auto loader = torch::data::make_data_loader<torch::data::samplers::SequentialSampler>(
-        std::move(dataset), batchSize);
+    if (isTrain)
+    {
+        auto loader = torch::data::make_data_loader<torch::data::samplers::SequentialSampler>(
+            std::move(dataset), batchSize);
 
-    std::shared_ptr<MNIST_t> shared = std::move(loader);
+        std::shared_ptr<MNISTTrain_t> shared = std::move(loader);
 
-    return new DatasetIterator<MNIST_t>(shared->begin(), size, shared);
+        return new DatasetIterator<MNISTTrain_t>(shared->begin(), size, shared);
+    }
+    else
+    {
+        auto loader = torch::data::make_data_loader(std::move(dataset), batchSize);
+
+        std::shared_ptr<MNISTTest_t> shared = std::move(loader);
+
+        return new DatasetIterator<MNISTTest_t>(shared->begin(), size, shared);
+    }
 }
 
 //// Gets the size in byte of some dataset wrapped as iterator

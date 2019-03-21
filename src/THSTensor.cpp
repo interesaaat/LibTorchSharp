@@ -3,7 +3,7 @@
 #include "stdafx.h"
 #include "utils.h"
 
-#include "TH/THTensor.h""
+#include "TH/THTensor.h"
 #include "torch/torch.h"
 
 // Create a variable tensor containing a tensor composed of ones.
@@ -20,6 +20,23 @@ EXPORT_API(TensorWrapper *) THS_ones(
         .requires_grad(requires_grad);
 
     at::Tensor tensor = torch::ones(at::IntList(sizes, lenght), options);
+
+    return new TensorWrapper(tensor);
+}
+
+// Create a variable tensor containing a tensor composed of ones.
+EXPORT_API(TensorWrapper *) THS_new(
+    void * data, 
+    const int64_t * sizes, 
+    const int szlenght, 
+    const int64_t * strides, 
+    const int stlenght, 
+    int8_t scalar_type)
+{
+    auto options = at::TensorOptions()
+        .dtype(at::ScalarType(scalar_type));
+
+    at::Tensor tensor = torch::from_blob(data, at::IntList(sizes, szlenght), at::IntList(strides, stlenght), options);
 
     return new TensorWrapper(tensor);
 }
@@ -60,6 +77,12 @@ EXPORT_API(void) THS_Dispose(const TensorWrapper * twrapper)
 EXPORT_API(void *) THS_data(const TensorWrapper * twrapper)
 {
     return twrapper->tensor.data_ptr();
+}
+
+// Return the inner type of the tensor.
+EXPORT_API(int8_t) THS_Type(const TensorWrapper * twrapper)
+{
+    return (int8_t)twrapper->tensor.scalar_type();
 }
 
 // Return a printable version of the device type storing the tensor.

@@ -41,6 +41,54 @@ EXPORT_API(TensorWrapper *) THS_new(
     return new TensorWrapper(tensor);
 }
 
+// Create a variable tensor containing a tensor composed of ones.
+EXPORT_API(TensorWrapper *) THS_new_byteScalar(char data)
+{
+    at::Tensor tensor = torch::tensor(data);
+
+    return new TensorWrapper(tensor);
+}
+
+// Create a variable tensor containing a tensor composed of ones.
+EXPORT_API(TensorWrapper *) THS_new_shortScalar(short data)
+{
+    at::Tensor tensor = torch::tensor(data);
+
+    return new TensorWrapper(tensor);
+}
+
+// Create a variable tensor containing a tensor composed of ones.
+EXPORT_API(TensorWrapper *) THS_new_intScalar(int data)
+{
+    at::Tensor tensor = torch::tensor(data);
+
+    return new TensorWrapper(tensor);
+}
+
+// Create a variable tensor containing a tensor composed of ones.
+EXPORT_API(TensorWrapper *) THS_new_longScalar(long data)
+{
+    at::Tensor tensor = torch::tensor(data);
+
+    return new TensorWrapper(tensor);
+}
+
+// Create a variable tensor containing a tensor composed of ones.
+EXPORT_API(TensorWrapper *) THS_new_doubleScalar(double data)
+{
+    at::Tensor tensor = torch::tensor(data);
+
+    return new TensorWrapper(tensor);
+}
+
+// Create a variable tensor containing a tensor composed of ones.
+EXPORT_API(TensorWrapper *) THS_new_floatScalar(float data)
+{
+    at::Tensor tensor = torch::tensor(data);
+
+    return new TensorWrapper(tensor);
+}
+
 // Returns a variable tensor filled with random numbers from a normal distribution with mean 0 and variance 1.
 EXPORT_API(TensorWrapper *) THS_randn(
     const int64_t * sizes, 

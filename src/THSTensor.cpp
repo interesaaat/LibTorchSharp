@@ -144,6 +144,20 @@ EXPORT_API(const char*) THS_deviceType(const TensorWrapper * twrapper)
     return makeSharableString(device_type);
 }
 
+// Create a copy of this tensor (if necessary) on a CPU device.
+// If this tensor is already on the CPU device, it does not create a copy.
+EXPORT_API(TensorWrapper *) THS_cpu(const TensorWrapper * twrapper)
+{
+	return new TensorWrapper(twrapper->tensor.cpu());
+}
+
+// Create a copy of this tensor (if necessary) on a CUDA device.
+// If this tensor is already on the CUDA device, it does not create a copy.
+EXPORT_API(TensorWrapper *) THS_cuda(const TensorWrapper * twrapper)
+{
+	return new TensorWrapper(twrapper->tensor.cuda());
+}
+
 // Get the gradients for the input tensor.
 EXPORT_API(TensorWrapper *) THS_Grad(const TensorWrapper * twrapper)
 {

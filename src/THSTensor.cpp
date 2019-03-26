@@ -6,6 +6,16 @@
 #include "TH/THTensor.h"
 #include "torch/torch.h"
 
+EXPORT_API(bool) THS_gradmode_is_enabled()
+{
+	return torch::autograd::GradMode::is_enabled();
+}
+
+EXPORT_API(void) THS_gradmode_set_enabled(bool enabled)
+{
+	torch::autograd::GradMode::set_enabled(enabled);
+}
+
 // Create a variable tensor containing a tensor composed of ones.
 EXPORT_API(TensorWrapper *) THS_ones(
     const int64_t * sizes, 
@@ -161,7 +171,8 @@ EXPORT_API(TensorWrapper *) THS_cuda(const TensorWrapper * twrapper)
 // Get the gradients for the input tensor.
 EXPORT_API(TensorWrapper *) THS_Grad(const TensorWrapper * twrapper)
 {
-    return new TensorWrapper(twrapper->tensor.grad());
+	at::Tensor grad = twrapper->tensor.grad();
+	return grad.defined() ? new TensorWrapper(grad) : NULL;
 }
 
 // Inplace subtraction with no grad
@@ -174,8 +185,6 @@ EXPORT_API(TensorWrapper *) THS_View(const TensorWrapper * lwrapper, const int64
 // Returns the sum of all elements in the input tensor.
 EXPORT_API(TensorWrapper *) THS_Sum(const TensorWrapper * lwrapper)
 {
-    torch::NoGradGuard no_grad;
-
     return new TensorWrapper(lwrapper->tensor.sum());
 }
 

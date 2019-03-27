@@ -1,6 +1,5 @@
 #pragma once
 
-#include "TH/THGeneral.h"
 #include "torch/script.h"
 
 #include "THSTensor.h"

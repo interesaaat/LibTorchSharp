@@ -1,9 +1,6 @@
 #include "THSData.h"
 
-#include "utils.h"
-#include "THSTensor.h"
-
-#include <torch/torch.h>
+#include "Utils.h"
 
 // Typedefs for the iterators.
 typedef torch::data::DataLoader<

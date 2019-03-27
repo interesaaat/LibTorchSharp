@@ -1,7 +1,6 @@
 #include "THSJIT.h"
 
 #include "Utils.h"
-#include "THSTensor.h"
 
 JITModuleWrapper * THSJIT_loadModule(const char* filename)
 {

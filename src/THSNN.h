@@ -1,10 +1,9 @@
 #pragma once
 
+#include "TH/THGeneral.h"
 #include "torch/torch.h"
 
 #include "THSTensor.h"
-
-#include "TH/THGeneral.h"
 
 // Inter-op structs.
 

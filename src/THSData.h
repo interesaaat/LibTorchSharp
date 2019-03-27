@@ -2,9 +2,6 @@
 
 #include "THSTensor.h"
 
-#include "TH/THGeneral.h"
-#include <torch/torch.h>
-
 // Inter-op classes.
 
 // Base non-generic interator class. Used to communicate with C#.

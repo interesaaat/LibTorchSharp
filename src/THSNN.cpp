@@ -1,6 +1,5 @@
 #include "THSNN.h"
 
-#include "THSTensor.h"
 #include "Utils.h"
 
 void THSNN_seed(const int64_t seed)

@@ -2,9 +2,6 @@
 
 #include "Utils.h"
 
-#include "TH/THTensor.h"
-#include "torch/torch.h"
-
 TensorWrapper * THSTensor_ones(
     const int64_t * sizes, 
     const int lenght, 

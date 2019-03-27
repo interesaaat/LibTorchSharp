@@ -1,5 +1,7 @@
 #include "THSAutograd.h"
 
+#include "torch/torch.h"
+
 bool THSAutograd_isGradEnabled()
 {
     return torch::autograd::GradMode::is_enabled();

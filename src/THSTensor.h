@@ -1,9 +1,8 @@
 #pragma once
 
-#include <aten/core/Tensor.h>
-
 #include "TH/THGeneral.h"
 #include "TH/THTensor.h"
+#include "torch/torch.h"
 
 // Inter-op structs.
 

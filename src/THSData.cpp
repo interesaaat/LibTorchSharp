@@ -1,13 +1,11 @@
 #include "THSData.h"
 
-#include "stdafx.h"
 #include "utils.h"
-
 #include "THSTensor.h"
-#include <torch/torch.h>
-#include <Windows.h>
-#include <exception>
 
+#include <torch/torch.h>
+
+// Typedefs for the iterators.
 typedef torch::data::DataLoader<
     std::remove_reference_t<torch::data::datasets::MapDataset<torch::data::datasets::MapDataset<torch::data::datasets::MNIST, torch::data::transforms::Normalize<at::Tensor>>, torch::data::transforms::Stack<torch::data::Example<at::Tensor, at::Tensor>>>&>, torch::data::samplers::SequentialSampler> MNISTTrain_t;
 
@@ -15,7 +13,7 @@ typedef torch::data::DataLoader<
     std::remove_reference_t<torch::data::datasets::MapDataset<torch::data::datasets::MapDataset<torch::data::datasets::MNIST, torch::data::transforms::Normalize<at::Tensor>>, torch::data::transforms::Stack<torch::data::Example<at::Tensor, at::Tensor>>>&>, torch::data::samplers::RandomSampler> MNISTTest_t;
 
 // Load an MNIST dataset from a file
-EXPORT_API(DatasetIteratorBase *) Data_LoaderMNIST(
+DatasetIteratorBase * THSData_loaderMNIST(
     const char* filename,
     int64_t batchSize,
     bool isTrain)
@@ -52,32 +50,27 @@ EXPORT_API(DatasetIteratorBase *) Data_LoaderMNIST(
     }
 }
 
-//// Gets the size in byte of some dataset wrapped as iterator
-EXPORT_API(size_t) Data_Size(DatasetIteratorBase * iterator)
+size_t THSData_size(DatasetIteratorBase * iterator)
 {
     return iterator->getSize();
 }
 
-// Advance the pointer of the target iterator
-EXPORT_API(bool) Data_MoveNext(DatasetIteratorBase * iterator)
+bool THSData_moveNext(DatasetIteratorBase * iterator)
 {
     return iterator->moveNext();
 }
 
-// Get the curret data and target tensors pointed by the iterator
-EXPORT_API(void) Data_Current(DatasetIteratorBase * iterator, TensorWrapper** data, TensorWrapper** target)
+void THSData_current(DatasetIteratorBase * iterator, TensorWrapper** data, TensorWrapper** target)
 {
     iterator->current(data, target);
 }
 
-// Reset the iterator.
-EXPORT_API(void) Data_Reset(DatasetIteratorBase * iterator)
+void THSData_reset(DatasetIteratorBase * iterator)
 {
     iterator->reset();
 }
 
-// Dispose the iterator.
-EXPORT_API(void) Data_Dispose(DatasetIteratorBase * iterator)
+void THSData_dispose(DatasetIteratorBase * iterator)
 {
     delete iterator;
 }

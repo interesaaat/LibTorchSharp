@@ -1,7 +1,5 @@
 #include "THSNN.h"
 
-#include "Utils.h"
-
 void THSNN_seed(const int64_t seed)
 {
     torch::manual_seed(seed);
@@ -34,6 +32,11 @@ NNModuleWrapper * THSNN_conv2dModule(
 long THSNN_getNumberOfChildren(const NNModuleWrapper * mwrapper)
 {
     return mwrapper->module->children().size();
+}
+
+const char * THSNN_getChildModuleName(const NNModuleWrapper * mwrapper, const int index)
+{
+    return makeSharableString(mwrapper->module->children()[index]->name());
 }
 
 const char * THSNN_getModuleName(const NNModuleWrapper * mwrapper)

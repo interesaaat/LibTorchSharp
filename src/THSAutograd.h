@@ -1,9 +1,9 @@
 #pragma once
 
-#include "TH/THGeneral.h"
+#include "Utils.h"
 
 // Returns whether the grad is enabled or not.
-TH_API bool THSAutograd_isGradEnabled();
+THS_API bool THSAutograd_isGradEnabled();
 
 // Enables / disables grad.
-TH_API void THSAutograd_setGrad(bool enabled);
+THS_API void THSAutograd_setGrad(bool enabled);

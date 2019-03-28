@@ -1,7 +1,5 @@
 #include "THSData.h"
 
-#include "Utils.h"
-
 // Typedefs for the iterators.
 typedef torch::data::DataLoader<
     std::remove_reference_t<torch::data::datasets::MapDataset<torch::data::datasets::MapDataset<torch::data::datasets::MNIST, torch::data::transforms::Normalize<at::Tensor>>, torch::data::transforms::Stack<torch::data::Example<at::Tensor, at::Tensor>>>&>, torch::data::samplers::SequentialSampler> MNISTTrain_t;

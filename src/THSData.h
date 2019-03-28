@@ -77,22 +77,22 @@ inline void DatasetIterator<Dataset>::reset()
 // API.
 
 // Load a MNIST dataset from a file.
-TH_API DatasetIteratorBase * THSData_loaderMNIST(
+THS_API DatasetIteratorBase * THSData_loaderMNIST(
     const char* filename,
     int64_t batchSize,
     bool isTrain);
 
 // Gets the size in byte of some dataset wrapped as iterator.
-TH_API size_t THSData_size(DatasetIteratorBase * iterator);
+THS_API size_t THSData_size(DatasetIteratorBase * iterator);
 
 // Advances the pointer of the target iterator.
-TH_API bool THSData_moveNext(DatasetIteratorBase * iterator);
+THS_API bool THSData_moveNext(DatasetIteratorBase * iterator);
 
 // Gets the curret data and target tensors pointed by the iterator.
-TH_API void THSData_current(DatasetIteratorBase * iterator, TensorWrapper** data, TensorWrapper** target);
+THS_API void THSData_current(DatasetIteratorBase * iterator, TensorWrapper** data, TensorWrapper** target);
 
 // Resets the iterator.
-TH_API void THSData_reset(DatasetIteratorBase * iterator);
+THS_API void THSData_reset(DatasetIteratorBase * iterator);
 
 // Disposes the iterator.
-TH_API void THSData_dispose(DatasetIteratorBase * iterator);
+THS_API void THSData_dispose(DatasetIteratorBase * iterator);

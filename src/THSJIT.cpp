@@ -1,7 +1,5 @@
 #include "THSJIT.h"
 
-#include "Utils.h"
-
 JITModuleWrapper * THSJIT_loadModule(const char* filename)
 {
     auto module = torch::jit::load(filename);

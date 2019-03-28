@@ -1,7 +1,5 @@
 #include "THSTensor.h"
 
-#include "Utils.h"
-
 TensorWrapper * THSTensor_ones(
     const int64_t * sizes, 
     const int lenght, 

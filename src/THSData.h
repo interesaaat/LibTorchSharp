@@ -1,9 +1,8 @@
 #pragma once
 
-#include "stdafx.h"
 #include "THSTensor.h"
 
-#include <torch/torch.h>
+// Inter-op classes.
 
 // Base non-generic interator class. Used to communicate with C#.
 class DatasetIteratorBase
@@ -42,6 +41,8 @@ private:
         size_t size;
 };
 
+// Class-related methods.
+
 // Get the total size in bytes of the input dataset.
 template<typename Dataset>
 inline size_t DatasetIterator<Dataset>::getSize()
@@ -72,3 +73,26 @@ inline void DatasetIterator<Dataset>::reset()
 {
     currentIter = loaderPointer.get()->begin();
 }
+
+// API.
+
+// Load a MNIST dataset from a file.
+THS_API DatasetIteratorBase * THSData_loaderMNIST(
+    const char* filename,
+    int64_t batchSize,
+    bool isTrain);
+
+// Gets the size in byte of some dataset wrapped as iterator.
+THS_API size_t THSData_size(DatasetIteratorBase * iterator);
+
+// Advances the pointer of the target iterator.
+THS_API bool THSData_moveNext(DatasetIteratorBase * iterator);
+
+// Gets the curret data and target tensors pointed by the iterator.
+THS_API void THSData_current(DatasetIteratorBase * iterator, TensorWrapper** data, TensorWrapper** target);
+
+// Resets the iterator.
+THS_API void THSData_reset(DatasetIteratorBase * iterator);
+
+// Disposes the iterator.
+THS_API void THSData_dispose(DatasetIteratorBase * iterator);

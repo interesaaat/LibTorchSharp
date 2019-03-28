@@ -1,7 +1,8 @@
 #include "utils.h"
+
+#include <cstring>
 #include <fstream>
 
-// Uitlity method used to built sharable strings.
 const char * makeSharableString(std::string str)
 {
     size_t size = sizeof(str);

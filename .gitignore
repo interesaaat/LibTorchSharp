@@ -12,3 +12,14 @@
 /Debug
 /LibTorchSharp.dir/Debug
 /Release
+/src/Makefile
+/Makefile
+/libTorchSharp.vcxproj.filters
+/libTorchSharp.vcxproj
+/libTorchSharp.so
+/libTorchSharp.sln
+/CMakeCache.txt
+/ALL_BUILD.vcxproj.filters
+/ALL_BUILD.vcxproj
+/ZERO_CHECK.vcxproj.filters
+/ZERO_CHECK.vcxproj

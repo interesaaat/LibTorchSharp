@@ -1,10 +1,5 @@
 #include "THSNN.h"
 
-void THSNN_seed(const int64_t seed)
-{
-    torch::manual_seed(seed);
-}
-
 NNModuleWrapper * THSNN_reluModule()
 {
     auto relu = torch::nn::Functional(torch::relu);

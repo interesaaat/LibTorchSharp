@@ -24,9 +24,6 @@ struct NNOptimizerWrapper
 
 // API.
 
-// Sets manually the seed.
-THS_API void THSNN_seed(const int64_t seed);
-
 // Returns a ReLu layer.
 THS_API NNModuleWrapper * THSNN_reluModule();
 

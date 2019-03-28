@@ -151,8 +151,6 @@ TensorWrapper * THSTensor_view(const TensorWrapper * lwrapper, const int64_t * s
 
 TensorWrapper * THSTensor_sum(const TensorWrapper * lwrapper)
 {
-    torch::NoGradGuard no_grad;
-
     return new TensorWrapper(lwrapper->tensor.sum());
 }
 

@@ -20,6 +20,7 @@
 * Just type `make`. The `libTorchSharp.so` file will be generated in the project location.
 
 ### Tested on
-* Windows 10 machine (Linux subsystem)
+* Windows 10 machine (with Linux subsystem)
+* Ubuntu 18.04
 * libtorch => 1.0
 * Visual Studio 2017 (v141, Windows SDK 10.0.17134.0)

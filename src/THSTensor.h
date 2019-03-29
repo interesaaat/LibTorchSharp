@@ -182,6 +182,6 @@ THS_API TensorWrapper * THSTensor_sum(const TensorWrapper * twrapper);
 /// Fills the given 2-dimensional input tensor with values drawn from a uniform
 /// distribution parameterized by `low` and `high`.
 /// No gradient will be recorded for this operation.
-THS_API TensorWrapper * THSTensor_initUniform(TensorWrapper * twrapper, double low, double high);
+THS_API void THSTensor_initUniform(TensorWrapper * twrapper, double low, double high);
 
 

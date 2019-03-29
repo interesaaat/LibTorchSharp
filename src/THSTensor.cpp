@@ -272,9 +272,9 @@ TensorWrapper * THSTensor_sum(const TensorWrapper * lwrapper)
     return new TensorWrapper(lwrapper->tensor.sum());
 }
 
-TensorWrapper * THSTensor_initUniform(TensorWrapper * twrapper, double low, double high)
+void THSTensor_initUniform(TensorWrapper * twrapper, double low, double high)
 {
-    return new TensorWrapper(torch::nn::init::uniform_(twrapper->tensor, low, high));
+    torch::nn::init::uniform_(twrapper->tensor, low, high);
 }
 
 

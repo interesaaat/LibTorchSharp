@@ -1,5 +1,7 @@
 #include "THSNN.h"
 
+#include <torch/nn/init.h>
+
 NNModuleWrapper * THSNN_reluModule()
 {
     auto relu = torch::nn::Functional(torch::relu);
@@ -117,6 +119,11 @@ void THSNN_getParameters(
     {
         result[i] = new TensorWrapper(parameters[i]);
     }
+}
+
+TensorWrapper * THSNN_initUniform(TensorWrapper * twrapper, double low, double high)
+{
+    return new TensorWrapper(torch::nn::init::uniform_(twrapper->tensor, low, high));
 }
 
 TensorWrapper * THSNN_lossMSE(const TensorWrapper * srcwrapper, const TensorWrapper * trgwrapper, const int64_t reduction)

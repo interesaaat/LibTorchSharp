@@ -1,5 +1,22 @@
 #include "THSTensor.h"
 
+TensorWrapper * THSTensor_zeros(
+    const int64_t * sizes,
+    const int lenght,
+    const int8_t scalar_type,
+    const char * device,
+    const bool requires_grad)
+{
+    auto options = at::TensorOptions()
+        .dtype(at::ScalarType(scalar_type))
+        .device(device)
+        .requires_grad(requires_grad);
+
+    at::Tensor tensor = torch::zeros(at::IntList(sizes, lenght), options);
+
+    return new TensorWrapper(tensor);
+}
+
 TensorWrapper * THSTensor_ones(
     const int64_t * sizes, 
     const int lenght, 
@@ -143,15 +160,55 @@ void THSTensor_backward(TensorWrapper * twrapper)
     twrapper->tensor.backward();
 }
 
-TensorWrapper * THSTensor_view(const TensorWrapper * lwrapper, const int64_t * shape, const int length)
+TensorWrapper * THSTensor_reshape(const TensorWrapper * twrapper, const int64_t * shape, const int length)
 {
-    at::Tensor result = lwrapper->tensor.view(at::IntList(shape, length));
+    at::Tensor result = twrapper->tensor.reshape(at::IntList(shape, length));
     return new TensorWrapper(result);
 }
 
-TensorWrapper * THSTensor_sum(const TensorWrapper * lwrapper)
+TensorWrapper * THSTensor_view(const TensorWrapper * twrapper, const int64_t * shape, const int length)
 {
-    return new TensorWrapper(lwrapper->tensor.sum());
+    at::Tensor result = twrapper->tensor.view(at::IntList(shape, length));
+    return new TensorWrapper(result);
+}
+
+TensorWrapper * THSTensor_add(const TensorWrapper * lwrapper, const int value, const TensorWrapper * rwrapper)
+{
+    at::Tensor left = lwrapper->tensor;
+    return new TensorWrapper(left.add(rwrapper->tensor, value));
+}
+
+void THSTensor_add_(const TensorWrapper * lwrapper, const int value, const TensorWrapper * rwrapper)
+{
+    at::Tensor left = lwrapper->tensor;
+    left.add_(rwrapper->tensor, value);
+}
+
+TensorWrapper * THSTensor_addbmm(
+    const TensorWrapper * matWrapper,
+    const TensorWrapper * batch1Wrapper,
+    const TensorWrapper * batch2Wrapper,
+    const float beta,
+    const float alpha)
+{
+    at::Tensor mat = matWrapper->tensor;
+    return new TensorWrapper(mat.addbmm(batch1Wrapper->tensor, batch2Wrapper->tensor, beta, alpha));
+}
+
+TensorWrapper * THSTensor_argmax(const TensorWrapper * twrapper, const int64_t dimension, bool keepDim)
+{
+    return new TensorWrapper(twrapper->tensor.argmax(dimension, keepDim));
+}
+
+TensorWrapper * THSTensor_baddbmm(
+    const TensorWrapper * batch1Wrapper,
+    const TensorWrapper * batch2Wrapper,
+    const TensorWrapper * matWrapper,
+    const float beta,
+    const float alpha)
+{
+    at::Tensor batch1 = batch1Wrapper->tensor;
+    return new TensorWrapper(batch1.baddbmm(batch2Wrapper->tensor, matWrapper->tensor, beta, alpha));
 }
 
 TensorWrapper * THSTensor_eq(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper)
@@ -160,18 +217,59 @@ TensorWrapper * THSTensor_eq(const TensorWrapper * lwrapper, const TensorWrapper
     return new TensorWrapper(left.eq(rwrapper->tensor));
 }
 
-TensorWrapper * THSTensor_sub_(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper)
+TensorWrapper * THSTensor_exp(const TensorWrapper * twrapper)
 {
-    at::Tensor left = lwrapper->tensor;
-    return new TensorWrapper(left.sub_(rwrapper->tensor));
+    return new TensorWrapper(twrapper->tensor.exp());
 }
 
-TensorWrapper * THSTensor_mul(const TensorWrapper * twrapper, const float scalar)
+TensorWrapper * THSTensor_matMul(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper)
+{
+    at::Tensor left = lwrapper->tensor;
+    return new TensorWrapper(left.matmul(rwrapper->tensor));
+}
+
+TensorWrapper * THSTensor_mul(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper)
+{
+    at::Tensor left = lwrapper->tensor;
+    return new TensorWrapper(left.mul(rwrapper->tensor));
+}
+
+TensorWrapper * THSTensor_mulS(const TensorWrapper * twrapper, const float scalar)
 {
     return new TensorWrapper(twrapper->tensor.mul(scalar));
 }
 
-TensorWrapper * THSTensor_argmax(const TensorWrapper * twrapper, const int64_t dimension, bool keepDim)
+void THSTensor_mul_(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper)
 {
-    return new TensorWrapper(twrapper->tensor.argmax(dimension, keepDim));
+    at::Tensor left = lwrapper->tensor;
+    left.mul_(rwrapper->tensor);
 }
+
+TensorWrapper * THSTensor_pow(const TensorWrapper * twrapper, const float scalar)
+{
+    return new TensorWrapper(twrapper->tensor.pow(scalar));
+}
+
+TensorWrapper * THSTensor_sigmoid(const TensorWrapper * twrapper)
+{
+    return new TensorWrapper(twrapper->tensor.sigmoid());
+}
+
+TensorWrapper * THSTensor_sub(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper)
+{
+    at::Tensor left = lwrapper->tensor;
+    return new TensorWrapper(left.sub(rwrapper->tensor));
+}
+
+void THSTensor_sub_(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper)
+{
+    at::Tensor left = lwrapper->tensor;
+    left.sub_(rwrapper->tensor);
+}
+
+TensorWrapper * THSTensor_sum(const TensorWrapper * lwrapper)
+{
+    return new TensorWrapper(lwrapper->tensor.sum());
+}
+
+

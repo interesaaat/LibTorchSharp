@@ -17,6 +17,14 @@ struct TensorWrapper
 
 // API.
 
+//  Creates  a variable tensor containing a tensor composed of zeros.
+THS_API TensorWrapper * THSTensor_zeros(
+    const int64_t * sizes,
+    const int lenght,
+    const int8_t scalar_type,
+    const char * device,
+    const bool requires_grad);
+
 //  Creates  a variable tensor containing a tensor composed of ones.
 THS_API TensorWrapper * THSTensor_ones(
     const int64_t * sizes,
@@ -92,6 +100,12 @@ THS_API TensorWrapper * THSTensor_grad(const TensorWrapper * twrapper);
 // Backard pass starting from the input tensor.
 THS_API void THSTensor_backward(TensorWrapper * twrapper);
 
+// Returns a tensor with the same data and number of elements as input, but with the specified shape.
+// When possible, the returned tensor will be a view of input.Otherwise, it will be a copy.
+// Contiguous inputs and inputs with compatible strides can be reshaped without copying, 
+// but you should not depend on the copying vs.viewing behavior.
+THS_API TensorWrapper * THSTensor_reshape(const TensorWrapper * twrapper, const int64_t * shape, const int length);
+
 // Returns a new tensor with the same data as the tensor in twrapper but of a different shape.
 // The returned tensor shares the same data and must have the same number of elements, 
 // but may have a different size. For a tensor to be viewed, the new view size must be compatible 
@@ -99,18 +113,72 @@ THS_API void THSTensor_backward(TensorWrapper * twrapper);
 // that size is inferred from other dimensions.
 THS_API TensorWrapper * THSTensor_view(const TensorWrapper * twrapper, const int64_t * shape, const int length);
 
-// Returns the sum of all elements in the input tensor.
-THS_API TensorWrapper * THSTensor_sum(const TensorWrapper * twrapper);
+// Each element of the tensor other is multiplied by the scalar value 
+// and added to each element of the tensor input. The resulting tensor is returned.
+THS_API void THSTensor_add_(const TensorWrapper * lwrapper, const int value, const TensorWrapper * rwrapper);
+
+// Performs a batch matrix-matrix product of matrices stored in batch1 and batch2, with a reduced add step 
+// (all matrix multiplications get accumulated along the first dimension). mat is added to the final result.
+// Check https://pytorch.org/docs/stable/torch.html#torch.addbmm for details.
+THS_API TensorWrapper * THSTensor_addbmm(
+    const TensorWrapper * matWrapper,
+    const TensorWrapper * batch1Wrapper,
+    const TensorWrapper * batch2Wrapper,
+    const float beta,
+    const float alpha);
+
+// Returns the indices of the maximum values of a tensor across a dimension.
+THS_API TensorWrapper * THSTensor_argmax(const TensorWrapper * twrapper, const int64_t dimension, bool keepDim);
+
+// Performs a batch matrix - matrix product of matrices in batch1 and batch2.mat is added to the final result.
+// Batch1 and batch2 must be 3 - D tensors each containing the same number of matrices.
+// Check https://pytorch.org/docs/stable/torch.html#torch.baddbmm for details.
+THS_API TensorWrapper * THSTensor_baddbmm(
+    const TensorWrapper * batch1Wrapper,
+    const TensorWrapper * batch2Wrapper,
+    const TensorWrapper * matWrapper,
+    const float beta,
+    const float alpha);
 
 // Computes element-wise equality.
 THS_API TensorWrapper * THSTensor_eq(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper);
 
-// Inplace subtraction of rwrapper to lwrapper. 
-// The shape of rwrapper must be broadcastable with the shape of the left tensor.
-THS_API TensorWrapper * THSTensor_sub_(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper);
+// Returns a new tensor with the exponential of the elements of the input tensor input.
+THS_API TensorWrapper * THSTensor_exp(const TensorWrapper * twrapper);
+
+// Matrix product of two tensors.
+// The behavior depends on the dimensionality of the tensors.
+// Check https://pytorch.org/docs/stable/torch.html#torch.matmul for details.
+THS_API TensorWrapper * THSTensor_matMul(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper);
+
+// Each element of the left tensor is multiplied by each element of the rigth Tensor. 
+// The resulting tensor is returned.
+THS_API TensorWrapper * THSTensor_mul(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper);
 
 // Multiplies each element of the target tensor with the scalar value and returns a new resulting tensor.
-THS_API TensorWrapper * THSTensor_mul(const TensorWrapper * twrapper, const float scalar);
+THS_API TensorWrapper * THSTensor_mulS(const TensorWrapper * twrapper, const float scalar);
 
-// Returns the indices of the maximum values of a tensor across a dimension.
-THS_API TensorWrapper * THSTensor_argmax(const TensorWrapper * twrapper, const int64_t dimension, bool keepDim);
+// Each element of the left tensor is multiplied by each element of the rigth Tensor. 
+// This operation is in place.
+THS_API void THSTensor_mul_(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper);
+
+// Takes the power of each element in input with exponent and returns a tensor with the result.
+THS_API TensorWrapper * THSTensor_pow(const TensorWrapper * twrapper, const float scalar);
+
+// Returns a new tensor with the sigmoid of the elements of input.
+THS_API TensorWrapper * THSTensor_sigmoid(const TensorWrapper * twrapper);
+
+// Subtraction of rwrapper to lwrapper. 
+// The shape of rwrapper must be broadcastable with the shape of the left tensor.
+THS_API TensorWrapper * THSTensor_sub(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper);
+
+// Inplace subtraction of rwrapper to lwrapper. 
+// The shape of rwrapper must be broadcastable with the shape of the left tensor.
+THS_API void THSTensor_sub_(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper);
+
+// Returns the sum of all elements in the input tensor.
+THS_API TensorWrapper * THSTensor_sum(const TensorWrapper * twrapper);
+
+
+
+

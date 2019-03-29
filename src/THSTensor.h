@@ -155,12 +155,12 @@ THS_API TensorWrapper * THSTensor_matMul(const TensorWrapper * lwrapper, const T
 // The resulting tensor is returned.
 THS_API TensorWrapper * THSTensor_mul(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper);
 
-// Multiplies each element of the target tensor with the scalar value and returns a new resulting tensor.
-THS_API TensorWrapper * THSTensor_mulS(const TensorWrapper * twrapper, const float scalar);
-
 // Each element of the left tensor is multiplied by each element of the rigth Tensor. 
 // This operation is in place.
 THS_API void THSTensor_mul_(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper);
+
+// Multiplies each element of the target tensor with the scalar value and returns a new resulting tensor.
+THS_API TensorWrapper * THSTensor_mulS(const TensorWrapper * twrapper, const float scalar);
 
 // Takes the power of each element in input with exponent and returns a tensor with the result.
 THS_API TensorWrapper * THSTensor_pow(const TensorWrapper * twrapper, const float scalar);
@@ -179,6 +179,9 @@ THS_API void THSTensor_sub_(const TensorWrapper * lwrapper, const TensorWrapper 
 // Returns the sum of all elements in the input tensor.
 THS_API TensorWrapper * THSTensor_sum(const TensorWrapper * twrapper);
 
-
+/// Fills the given 2-dimensional input tensor with values drawn from a uniform
+/// distribution parameterized by `low` and `high`.
+/// No gradient will be recorded for this operation.
+THS_API TensorWrapper * THSTensor_initUniform(TensorWrapper * twrapper, double low, double high);
 
 

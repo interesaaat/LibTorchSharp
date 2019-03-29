@@ -121,11 +121,6 @@ void THSNN_getParameters(
     }
 }
 
-TensorWrapper * THSNN_initUniform(TensorWrapper * twrapper, double low, double high)
-{
-    return new TensorWrapper(torch::nn::init::uniform_(twrapper->tensor, low, high));
-}
-
 TensorWrapper * THSNN_lossMSE(const TensorWrapper * srcwrapper, const TensorWrapper * trgwrapper, const int64_t reduction)
 {
     return new TensorWrapper(torch::mse_loss(srcwrapper->tensor, trgwrapper->tensor, reduction));

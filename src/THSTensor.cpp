@@ -234,15 +234,15 @@ TensorWrapper * THSTensor_mul(const TensorWrapper * lwrapper, const TensorWrappe
     return new TensorWrapper(left.mul(rwrapper->tensor));
 }
 
-TensorWrapper * THSTensor_mulS(const TensorWrapper * twrapper, const float scalar)
-{
-    return new TensorWrapper(twrapper->tensor.mul(scalar));
-}
-
 void THSTensor_mul_(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper)
 {
     at::Tensor left = lwrapper->tensor;
     left.mul_(rwrapper->tensor);
+}
+
+TensorWrapper * THSTensor_mulS(const TensorWrapper * twrapper, const float scalar)
+{
+    return new TensorWrapper(twrapper->tensor.mul(scalar));
 }
 
 TensorWrapper * THSTensor_pow(const TensorWrapper * twrapper, const float scalar)
@@ -270,6 +270,11 @@ void THSTensor_sub_(const TensorWrapper * lwrapper, const TensorWrapper * rwrapp
 TensorWrapper * THSTensor_sum(const TensorWrapper * lwrapper)
 {
     return new TensorWrapper(lwrapper->tensor.sum());
+}
+
+TensorWrapper * THSTensor_initUniform(TensorWrapper * twrapper, double low, double high)
+{
+    return new TensorWrapper(torch::nn::init::uniform_(twrapper->tensor, low, high));
 }
 
 

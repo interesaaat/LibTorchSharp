@@ -82,11 +82,6 @@ THS_API void THSNN_getParameters(
     const NNModuleWrapper * mwrapper,
     TensorWrapper** (*allocator)(size_t length));
 
-/// Fills the given 2-dimensional input tensor with values drawn from a uniform
-/// distribution parameterized by `low` and `high`.
-/// No gradient will be recorded for this operation.
-THS_API TensorWrapper * THSNN_initUniform(TensorWrapper * twrapper, double low, double high);
-
 // Computes the MSE loss between the input and target tensors, using a specified reduction type.
 THS_API TensorWrapper * THSNN_lossMSE(const TensorWrapper * srcwrapper, const TensorWrapper * trgwrapper, const int64_t reduction);
 

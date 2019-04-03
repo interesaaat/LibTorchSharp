@@ -195,6 +195,17 @@ TensorWrapper * THSTensor_addbmm(
     return new TensorWrapper(mat.addbmm(batch1Wrapper->tensor, batch2Wrapper->tensor, beta, alpha));
 }
 
+TensorWrapper * THSTensor_addmm(
+    const TensorWrapper * matWrapper,
+    const TensorWrapper * mat1Wrapper,
+    const TensorWrapper * mat2Wrapper,
+    const float beta,
+    const float alpha)
+{
+    at::Tensor mat = matWrapper->tensor;
+    return new TensorWrapper(mat.addmm(mat1Wrapper->tensor, mat2Wrapper->tensor, beta, alpha));
+}
+
 TensorWrapper * THSTensor_argmax(const TensorWrapper * twrapper, const int64_t dimension, bool keepDim)
 {
     return new TensorWrapper(twrapper->tensor.argmax(dimension, keepDim));
@@ -211,6 +222,12 @@ TensorWrapper * THSTensor_baddbmm(
     return new TensorWrapper(batch1.baddbmm(batch2Wrapper->tensor, matWrapper->tensor, beta, alpha));
 }
 
+TensorWrapper * THSTensor_bmm(const TensorWrapper * b1wrapper, const TensorWrapper * b2wrapper)
+{
+    at::Tensor batch1 = b1wrapper->tensor;
+    return new TensorWrapper(batch1.bmm(b2wrapper->tensor));
+}
+
 TensorWrapper * THSTensor_eq(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper)
 {
     at::Tensor left = lwrapper->tensor;
@@ -222,10 +239,16 @@ TensorWrapper * THSTensor_exp(const TensorWrapper * twrapper)
     return new TensorWrapper(twrapper->tensor.exp());
 }
 
-TensorWrapper * THSTensor_matMul(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper)
+TensorWrapper * THSTensor_matmul(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper)
 {
     at::Tensor left = lwrapper->tensor;
     return new TensorWrapper(left.matmul(rwrapper->tensor));
+}
+
+TensorWrapper * THSTensor_mm(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper)
+{
+    at::Tensor left = lwrapper->tensor;
+    return new TensorWrapper(left.mm(rwrapper->tensor));
 }
 
 TensorWrapper * THSTensor_mul(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper)

@@ -127,6 +127,15 @@ THS_API TensorWrapper * THSTensor_addbmm(
     const float beta,
     const float alpha);
 
+// Performs a matrix multiplication of the matrices mat1 and mat2. 
+// The matrix mat is added to the final result.
+THS_API TensorWrapper * THSTensor_addmm(
+    const TensorWrapper * matWrapper,
+    const TensorWrapper * mat1Wrapper,
+    const TensorWrapper * mat2Wrapper,
+    const float beta,
+    const float alpha);
+
 // Returns the indices of the maximum values of a tensor across a dimension.
 THS_API TensorWrapper * THSTensor_argmax(const TensorWrapper * twrapper, const int64_t dimension, bool keepDim);
 
@@ -140,6 +149,9 @@ THS_API TensorWrapper * THSTensor_baddbmm(
     const float beta,
     const float alpha);
 
+// Performs a batch matrix-matrix product of matrices stored in batch1 and batch2.
+THS_API TensorWrapper * THSTensor_bmm(const TensorWrapper * b1wrapper, const TensorWrapper * b2wrapper);
+
 // Computes element-wise equality.
 THS_API TensorWrapper * THSTensor_eq(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper);
 
@@ -149,7 +161,11 @@ THS_API TensorWrapper * THSTensor_exp(const TensorWrapper * twrapper);
 // Matrix product of two tensors.
 // The behavior depends on the dimensionality of the tensors.
 // Check https://pytorch.org/docs/stable/torch.html#torch.matmul for details.
-THS_API TensorWrapper * THSTensor_matMul(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper);
+THS_API TensorWrapper * THSTensor_matmul(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper);
+
+// Performs a matrix multiplication of the matrices mat1 and mat2.
+// This operation does not broadcast. For broadcasting use matmul.
+THS_API TensorWrapper * THSTensor_mm(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper);
 
 // Each element of the left tensor is multiplied by each element of the rigth Tensor. 
 // The resulting tensor is returned.

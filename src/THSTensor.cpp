@@ -160,10 +160,46 @@ void THSTensor_backward(TensorWrapper * twrapper)
     twrapper->tensor.backward();
 }
 
+TensorWrapper * THSTensor_cat(const TensorWrapper ** twrapper, const int length, const int64_t dim)
+{
+    std::vector<at::Tensor> tensors;
+
+    for (int i = 0; i < length; i++)
+    {
+        tensors.push_back(twrapper[i]->tensor);
+    }
+
+    return new TensorWrapper(torch::cat(tensors, dim));
+}
+
 TensorWrapper * THSTensor_reshape(const TensorWrapper * twrapper, const int64_t * shape, const int length)
 {
     at::Tensor result = twrapper->tensor.reshape(at::IntList(shape, length));
     return new TensorWrapper(result);
+}
+
+TensorWrapper * THSTensor_stack(const TensorWrapper ** twrapper, const int length, const int64_t dim)
+{
+    std::vector<at::Tensor> tensors;
+
+    for (int i = 0; i < length; i++)
+    {
+        tensors.push_back(twrapper[i]->tensor);
+    }
+
+    return new TensorWrapper(torch::stack(tensors, dim));
+}
+
+TensorWrapper * THSTensor_transpose(const TensorWrapper * twrapper, const int64_t dim1, const int64_t dim2)
+{
+    at::Tensor result = twrapper->tensor.transpose(dim1, dim2);
+    return new TensorWrapper(result);
+}
+
+void THSTensor_transpose_(const TensorWrapper * twrapper, const int64_t dim1, const int64_t dim2)
+{
+    at::Tensor tensor = twrapper->tensor;
+    tensor.transpose_(dim1, dim2);
 }
 
 TensorWrapper * THSTensor_view(const TensorWrapper * twrapper, const int64_t * shape, const int length)

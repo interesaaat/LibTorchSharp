@@ -100,11 +100,27 @@ THS_API TensorWrapper * THSTensor_grad(const TensorWrapper * twrapper);
 // Backard pass starting from the input tensor.
 THS_API void THSTensor_backward(TensorWrapper * twrapper);
 
+// Concatenates the given sequence of seq tensors in the given dimension. 
+// All tensors must either have the same shape (except in the concatenating dimension) or be empty.
+// See https://pytorch.org/docs/stable/torch.html#torch.cat for examples.
+THS_API TensorWrapper * THSTensor_cat(const TensorWrapper ** twrapper, const int length, const int64_t dim);
+
 // Returns a tensor with the same data and number of elements as input, but with the specified shape.
 // When possible, the returned tensor will be a view of input.Otherwise, it will be a copy.
 // Contiguous inputs and inputs with compatible strides can be reshaped without copying, 
 // but you should not depend on the copying vs.viewing behavior.
 THS_API TensorWrapper * THSTensor_reshape(const TensorWrapper * twrapper, const int64_t * shape, const int length);
+
+// Concatenates sequence of tensors along a new dimension.
+// All tensors need to be of the same size.
+THS_API TensorWrapper * THSTensor_stack(const TensorWrapper ** twrapper, const int length, const int64_t dim);
+
+// Returns a tensor that is a transposed version of input.The given dimensions dim0 and dim1 are swapped.
+THS_API TensorWrapper * THSTensor_transpose(const TensorWrapper * twrapper, const int64_t dim1, const int64_t dim2);
+
+// Returns a tensor that is a transposed version of input.The given dimensions dim0 and dim1 are swapped.
+// This operation is in place.
+THS_API void THSTensor_transpose_(const TensorWrapper * twrapper, const int64_t dim1, const int64_t dim2);
 
 // Returns a new tensor with the same data as the tensor in twrapper but of a different shape.
 // The returned tensor shares the same data and must have the same number of elements, 

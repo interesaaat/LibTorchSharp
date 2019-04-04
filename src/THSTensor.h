@@ -68,6 +68,17 @@ THS_API TensorWrapper * THSTensor_randn(
     const char * device,
     const bool requires_grad);
 
+// A sparse tensor is represented as a pair of dense tensors: a tensor of values and a 2D tensor of indices. 
+// A sparse tensor can be constructed by providing these two tensors, as well as the size of the sparse tensor. 
+THS_API TensorWrapper * THSTensor_sparse(
+    TensorWrapper * indices,
+    TensorWrapper * values,
+    const int64_t * sizes,
+    const int lenght,
+    const int8_t scalar_type,
+    const char * device,
+    const bool requires_grad);
+
 // Returns the internal tensor implementation.
 THS_API THTensor * THSTensor_unsafeGetTensorImpl(const TensorWrapper * twrapper);
 

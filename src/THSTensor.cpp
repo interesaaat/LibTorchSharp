@@ -109,6 +109,25 @@ TensorWrapper * THSTensor_randn(
     return new TensorWrapper(tensor);
 }
 
+TensorWrapper * THSTensor_sparse(
+    TensorWrapper * indices,
+    TensorWrapper * values,
+    const int64_t * sizes,
+    const int lenght,
+    const int8_t scalar_type,
+    const char * device,
+    const bool requires_grad)
+{
+    auto options = at::TensorOptions()
+        .dtype(at::ScalarType(scalar_type))
+        .device(device)
+        .requires_grad(requires_grad);
+
+    at::Tensor tensor = torch::sparse_coo_tensor(indices->tensor, values->tensor, at::IntList(sizes, lenght), options);
+
+    return new TensorWrapper(tensor);
+}
+
 THTensor * THSTensor_unsafeGetTensorImpl(const TensorWrapper * twrapper)
 {
     return twrapper->tensor.unsafeGetTensorImpl();

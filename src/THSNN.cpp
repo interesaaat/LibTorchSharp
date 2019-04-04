@@ -127,7 +127,9 @@ TensorWrapper * THSNN_lossBCE(
     const TensorWrapper * wgtwrapper, 
     const int64_t reduction)
 {
-    return new TensorWrapper(torch::binary_cross_entropy(srcwrapper->tensor, trgwrapper->tensor, wgtwrapper->tensor, reduction));
+    return wgtwrapper == NULL ?
+        new TensorWrapper(torch::binary_cross_entropy(srcwrapper->tensor, trgwrapper->tensor, {}, reduction)) :
+        new TensorWrapper(torch::binary_cross_entropy(srcwrapper->tensor, trgwrapper->tensor, wgtwrapper->tensor, reduction));
 }
 
 TensorWrapper * THSNN_lossMSE(const TensorWrapper * srcwrapper, const TensorWrapper * trgwrapper, const int64_t reduction)
@@ -141,7 +143,9 @@ TensorWrapper * THSNN_lossNLL(
     const TensorWrapper * wgtwrapper, 
     const int64_t reduction)
 {
-    return new TensorWrapper(torch::nll_loss(srcwrapper->tensor, trgwrapper->tensor, wgtwrapper->tensor, reduction));
+    return wgtwrapper == NULL ?
+        new TensorWrapper(torch::nll_loss(srcwrapper->tensor, trgwrapper->tensor, {}, reduction)) :
+        new TensorWrapper(torch::nll_loss(srcwrapper->tensor, trgwrapper->tensor, wgtwrapper->tensor, reduction));
 }
 
 NNOptimizerWrapper * THSNN_optimizerAdam(const TensorWrapper** parameters, const int len, const double learnig_rate)

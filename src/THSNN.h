@@ -82,11 +82,27 @@ THS_API void THSNN_getParameters(
     const NNModuleWrapper * mwrapper,
     TensorWrapper** (*allocator)(size_t length));
 
-// Computes the MSE loss between the input and target tensors, using a specified reduction type.
+// Computes the Binary Cross Entropy (BCE) loss between input and target tensors, using a specified reduction type
+// and weights if classes are unbalanced.
+// See https://pytorch.org/docs/stable/nn.html#torch.nn.BCELoss for further details.
+THS_API TensorWrapper * THSNN_lossBCE(
+    const TensorWrapper * srcwrapper,
+    const TensorWrapper * trgwrapper,
+    const TensorWrapper * wgtwrapper,
+    const int64_t reduction);
+
+// Computes the Mean squared Error (MSE, squared L2 norm) loss between the input and target tensors, using a specified reduction type.
+// See https://pytorch.org/docs/stable/nn.html#torch.nn.MSELoss for further details.
 THS_API TensorWrapper * THSNN_lossMSE(const TensorWrapper * srcwrapper, const TensorWrapper * trgwrapper, const int64_t reduction);
 
-// Computes the NLL loss between the input and target tensors, using a specified reduction type.
-THS_API TensorWrapper * THSNN_lossNLL(const TensorWrapper * srcwrapper, const TensorWrapper * trgwrapper, const int64_t reduction);
+// Computes the Negative Log Likelihood (NLL) loss between the input and target tensors, using a specified reduction type
+// and weights if classes are unbalanced. It is useful to train a classification problem with C classes.
+// See https://pytorch.org/docs/stable/nn.html#torch.nn.NLLLoss for further details.
+THS_API TensorWrapper * THSNN_lossNLL(
+    const TensorWrapper * srcwrapper, 
+    const TensorWrapper * trgwrapper, 
+    const TensorWrapper * wgtwrapper, 
+    const int64_t reduction);
 
 // Sets up the Adam optimizer
 THS_API NNOptimizerWrapper * THSNN_optimizerAdam(const TensorWrapper** parameters, const int len, const double learnig_rate);

@@ -50,6 +50,19 @@ TensorWrapper * THSTensor_new(
     return new TensorWrapper(tensor);
 }
 
+TensorWrapper * THSTensor_newLong(
+    int64_t * data,
+    const int64_t * sizes,
+    const int szlenght,
+    const int64_t * strides,
+    const int stlenght,
+    int8_t scalar_type)
+{
+    at::Tensor tensor = torch::from_blob(data, at::IntList(sizes, szlenght), at::IntList(strides, stlenght), at::kLong);
+
+    return new TensorWrapper(tensor);
+}
+
 TensorWrapper * THSTensor_newByteScalar(char data)
 {
     at::Tensor tensor = torch::tensor(data);
@@ -71,7 +84,7 @@ TensorWrapper * THSTensor_newIntScalar(int data)
     return new TensorWrapper(tensor);
 }
 
-TensorWrapper * THSTensor_newLongScalar(long data)
+TensorWrapper * THSTensor_newLongScalar(int64_t data)
 {
     at::Tensor tensor = torch::tensor(data);
 
@@ -123,7 +136,10 @@ TensorWrapper * THSTensor_sparse(
         .device(device)
         .requires_grad(requires_grad);
 
-    at::Tensor tensor = torch::sparse_coo_tensor(indices->tensor, values->tensor, at::IntList(sizes, lenght), options);
+    auto i = torch::autograd::as_variable_ref(indices->tensor).data();
+    auto v = torch::autograd::as_variable_ref(values->tensor).data();
+
+    at::Tensor tensor = torch::sparse_coo_tensor(i, v, at::IntList(sizes, lenght), options);
 
     return new TensorWrapper(tensor);
 }
@@ -156,6 +172,16 @@ const char* THSTensor_deviceType(const TensorWrapper * twrapper)
     std::transform(device_type.begin(), device_type.end(), device_type.begin(), ::tolower);
 
     return makeSharableString(device_type);
+}
+
+bool THSTensor_isSparse(const TensorWrapper * twrapper)
+{
+    return twrapper->tensor.is_sparse();
+}
+
+bool THSTensor_isVariable(const TensorWrapper * twrapper)
+{
+    return twrapper->tensor.is_variable();
 }
 
 TensorWrapper * THSTensor_cpu(const TensorWrapper * twrapper)

@@ -42,6 +42,14 @@ THS_API TensorWrapper * THSTensor_new(
     const int stlenght,
     int8_t scalar_type);
 
+THS_API TensorWrapper * THSTensor_newLong(
+    int64_t * data,
+    const int64_t * sizes,
+    const int szlenght,
+    const int64_t * strides,
+    const int stlenght,
+    int8_t scalar_type);
+
 //  Creates  a variable tensor wrapping the input scalar.
 THS_API TensorWrapper * THSTensor_newByteScalar(char data);
 
@@ -52,7 +60,7 @@ THS_API TensorWrapper * THSTensor_newShortScalar(short data);
 THS_API TensorWrapper * THSTensor_newIntScalar(int data);
 
 //  Creates  a variable tensor wrapping the input scalar.
-THS_API TensorWrapper * THSTensor_newLongScalar(long data);
+THS_API TensorWrapper * THSTensor_newLongScalar(int64_t data);
 
 //  Creates  a variable tensor wrapping the input scalar.
 THS_API TensorWrapper * THSTensor_newDoubleScalar(double data);
@@ -95,6 +103,12 @@ THS_API int8_t THSTensor_type(const TensorWrapper * twrapper);
 
 // Returns a printable version of the device type storing the tensor.
 THS_API const char* THSTensor_deviceType(const TensorWrapper * twrapper);
+
+// Returns whether the input tensor is sparse or not.
+THS_API bool THSTensor_isSparse(const TensorWrapper * twrapper);
+
+// Returns whether the input tensor is a variable or not.
+THS_API bool THSTensor_isVariable(const TensorWrapper * twrapper);
 
 //  Creates  a copy of this tensor (if necessary) on a CPU device.
 // If this tensor is already on the CPU device, it does not  Creates  a copy.

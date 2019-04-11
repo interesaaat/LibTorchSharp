@@ -12,7 +12,7 @@ public:
     DatasetIteratorBase() {}
     virtual size_t getSize() = 0;
     virtual bool moveNext() = 0;
-    virtual void current(TensorWrapper** data, TensorWrapper** target) = 0;
+    virtual void current(Tensor* data, Tensor* target) = 0;
     virtual void reset() = 0;
 };
 
@@ -32,7 +32,7 @@ public:
 
         size_t getSize();
         bool moveNext();
-        void current(TensorWrapper** data, TensorWrapper** target);
+        void current(Tensor* data, Tensor* target);
         void reset();
 
 private:
@@ -61,10 +61,10 @@ inline bool DatasetIterator<Dataset>::moveNext()
 
 // Get the current object pointed by the iterator.
 template<typename Dataset>
-inline void DatasetIterator<Dataset>::current(TensorWrapper** data, TensorWrapper** target)
+inline void DatasetIterator<Dataset>::current(Tensor* data, Tensor* target)
 {
-    data[0] = new TensorWrapper(std::move(currentIter->data));
-    target[0] = new TensorWrapper(std::move(currentIter->target));
+    data[0] = new torch::Tensor(currentIter->data);
+    target[0] = new torch::Tensor(currentIter->target);
 }
 
 // Reset the iterator to start from the beginning.
@@ -89,7 +89,7 @@ THS_API size_t THSData_size(DatasetIteratorBase * iterator);
 THS_API bool THSData_moveNext(DatasetIteratorBase * iterator);
 
 // Gets the curret data and target tensors pointed by the iterator.
-THS_API void THSData_current(DatasetIteratorBase * iterator, TensorWrapper** data, TensorWrapper** target);
+THS_API void THSData_current(DatasetIteratorBase * iterator, Tensor* data, Tensor* target);
 
 // Resets the iterator.
 THS_API void THSData_reset(DatasetIteratorBase * iterator);

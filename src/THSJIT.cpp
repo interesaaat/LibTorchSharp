@@ -1,101 +1,105 @@
 #include "THSJIT.h"
 
-JITModuleWrapper * THSJIT_loadModule(const char* filename)
+JITModule THSJIT_loadModule(const char* filename)
 {
-    auto module = torch::jit::load(filename);
-
-    return new JITModuleWrapper(module);
+    return new std::shared_ptr<torch::jit::script::Module>(torch::jit::load(filename));
 }
 
-long THSJIT_getNumModules(const JITModuleWrapper * mwrapper)
+long THSJIT_getNumModules(const JITModule module)
 {
-    return mwrapper->module->get_modules().size();
+    return (*module)->get_modules().size();
 }
 
-const char* THSJIT_getModuleName(const JITModuleWrapper * mwrapper, const int index)
+const char* THSJIT_getModuleName(const JITModule module, const int index)
 {
-    auto keys = mwrapper->module->get_modules().keys();
+    auto keys = (*module)->get_modules().keys();
 
     return makeSharableString(keys[index]);
 }
 
-JITModuleWrapper * THSJIT_getModuleFromIndex(const JITModuleWrapper * mwrapper, const int index)
+JITModule THSJIT_getModuleFromIndex(const JITModule module, const int index)
 {
-    auto values = mwrapper->module->get_modules().values();
+    auto values = (*module)->get_modules().values();
 
-    return new JITModuleWrapper(values[index].module);
+    return new std::shared_ptr<torch::jit::script::Module>(values[index].module);
 }
 
-JITModuleWrapper * THSJIT_getModuleFromName(const JITModuleWrapper * mwrapper, const char* name)
+JITModule THSJIT_getModuleFromName(const JITModule module, const char* name)
 {
-    auto module = mwrapper->module->get_module(name);
-
-    return new JITModuleWrapper(module);
+    return new std::shared_ptr<torch::jit::script::Module>((*module)->get_module(name));
 }
 
-int THSJIT_getNumberOfInputs(const JITModuleWrapper * mwrapper)
+int THSJIT_getNumberOfInputs(const JITModule module)
 {
-    auto method = mwrapper->module->find_method("forward");
+    auto method = (*module)->find_method("forward");
     auto args = method->getSchema().arguments();
     return args.size();
 }
 
-int THSJIT_getNumberOfOutputs(const JITModuleWrapper * mwrapper)
+int THSJIT_getNumberOfOutputs(const JITModule module)
 {
-    auto method = mwrapper->module->find_method("forward");
+    auto method = (*module)->find_method("forward");
     auto outputs = method->getSchema().returns();
     return outputs.size();
 }
 
-void * THSJIT_getInputType(const JITModuleWrapper * mwrapper, const int n)
+JITType THSJIT_getInputType(const JITModule module, const int n)
 {
-    auto method = mwrapper->module->find_method("forward");
+    auto method = (*module)->find_method("forward");
     auto args = method->getSchema().arguments();
     auto type = args[n].type();
 
-    return THSJIT_getType(type);
+    return new std::shared_ptr<c10::Type>(type);
 }
 
-void * THSJIT_getOutputType(const JITModuleWrapper * mwrapper, const int n)
+JITType THSJIT_getOutputType(const JITModule module, const int n)
 {
-    auto method = mwrapper->module->find_method("forward");
+    auto method = (*module)->find_method("forward");
     auto outputs = method->getSchema().returns();
     auto type = outputs[n].type();
 
-    return THSJIT_getType(type);
+    return new std::shared_ptr<c10::Type>(type);
 }
 
-void * THSJIT_getType(const c10::TypePtr type)
+void * THSJIT_typeCast(const JITType type)
 {
-    switch (type->kind())
+    switch ((*type)->kind())
     {
     case c10::TypeKind::DynamicType:
-        return new JITDynamicTypeWrapper(type->cast<c10::DynamicType>());
+        return new std::shared_ptr<torch::jit::DynamicType>((*type)->cast<c10::DynamicType>());
     case c10::TypeKind::TensorType:
-        return new JITTensorTypeWrapper(type->cast<c10::TensorType>());
+        return new std::shared_ptr<torch::jit::TensorType>((*type)->cast<c10::TensorType>());
     default:
         return NULL;
     }
 }
 
-int8_t THSJIT_typeKind(const JITTypeWrapper * twrapper)
+int8_t THSJIT_typeKind(const JITType type)
 {
-    return twrapper->enumType;
+    switch ((*type)->kind())
+    {
+    case c10::TypeKind::DynamicType:
+        return (int8_t)TypeKind::DynamicType;
+    case c10::TypeKind::TensorType:
+        return (int8_t)TypeKind::TensorType;
+    default:
+        return -1;
+    }
 }
 
-int8_t THSJIT_getScalarFromTensorType(const JITTensorTypeWrapper * ttwrapper)
+int8_t THSJIT_getScalarFromTensorType(const JITTensorType type)
 {
-    return (int8_t)ttwrapper->type->scalarType();
+    return (int8_t)(*type)->scalarType();
 }
 
-int THSJIT_getTensorTypeDimensions(const JITTensorTypeWrapper * ttwrapper)
+int THSJIT_getTensorTypeDimensions(const JITTensorType type)
 {
-    return ttwrapper->type->dim();
+    return (*type)->dim();
 }
 
-const char * THSJIT_getTensorDevice(const JITTensorTypeWrapper * ttwrapper)
+const char * THSJIT_getTensorDevice(const JITTensorType type)
 {
-    auto device = ttwrapper->type->device();
+    auto device = (*type)->device();
 
     auto device_type = DeviceTypeName(device.type());
 
@@ -104,26 +108,17 @@ const char * THSJIT_getTensorDevice(const JITTensorTypeWrapper * ttwrapper)
     return makeSharableString(device_type);
 }
 
-TensorWrapper * THSJIT_forward(const JITModuleWrapper * mwrapper, const TensorWrapper ** twrapper, const int length)
+Tensor THSJIT_forward(const JITModule module, const Tensor* tensorPtrs, const int length)
 {
-    std::vector<c10::IValue> tensors;
-
-    for (int i = 0; i < length; i++)
-    {
-        tensors.push_back(twrapper[i]->tensor);
-    }
-
-    auto result = mwrapper->module->forward(tensors);
-
-    return new TensorWrapper(result.toTensor());
+    return new torch::Tensor((*module)->forward(toTensors<c10::IValue>((torch::Tensor**)tensorPtrs, length)).toTensor());
 }
 
-void THSJIT_moduleDispose(const JITModuleWrapper * mwrapper)
+void THSJIT_moduleDispose(const JITModule module)
 {
-    delete mwrapper;
+    delete module;
 }
 
-void THSJIT_typeDispose(const JITTypeWrapper * twrapper)
+void THSJIT_typeDispose(const JITType type)
 {
-    delete twrapper;
+    delete type;
 }

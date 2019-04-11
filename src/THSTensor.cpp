@@ -1,6 +1,6 @@
 #include "THSTensor.h"
 
-TensorWrapper * THSTensor_zeros(
+Tensor THSTensor_zeros(
     const int64_t * sizes,
     const int lenght,
     const int8_t scalar_type,
@@ -12,12 +12,10 @@ TensorWrapper * THSTensor_zeros(
         .device(device)
         .requires_grad(requires_grad);
 
-    at::Tensor tensor = torch::zeros(at::IntList(sizes, lenght), options);
-
-    return new TensorWrapper(tensor);
+    return new torch::Tensor(torch::zeros(at::IntList(sizes, lenght), options));
 }
 
-TensorWrapper * THSTensor_ones(
+Tensor THSTensor_ones(
     const int64_t * sizes, 
     const int lenght, 
     const int8_t scalar_type, 
@@ -29,12 +27,10 @@ TensorWrapper * THSTensor_ones(
         .device(device)
         .requires_grad(requires_grad);
 
-    at::Tensor tensor = torch::ones(at::IntList(sizes, lenght), options);
-
-    return new TensorWrapper(tensor);
+    return new torch::Tensor(torch::ones(at::IntList(sizes, lenght), options));
 }
 
-TensorWrapper * THSTensor_new(
+Tensor THSTensor_new(
     void * data, 
     const int64_t * sizes, 
     const int szlenght, 
@@ -45,12 +41,10 @@ TensorWrapper * THSTensor_new(
     auto options = at::TensorOptions()
         .dtype(at::ScalarType(scalar_type));
 
-    at::Tensor tensor = torch::from_blob(data, at::IntList(sizes, szlenght), at::IntList(strides, stlenght), options);
-
-    return new TensorWrapper(tensor);
+    return new torch::Tensor(torch::from_blob(data, at::IntList(sizes, szlenght), at::IntList(strides, stlenght), options));
 }
 
-TensorWrapper * THSTensor_newLong(
+Tensor THSTensor_newLong(
     int64_t * data,
     const int64_t * sizes,
     const int szlenght,
@@ -58,54 +52,40 @@ TensorWrapper * THSTensor_newLong(
     const int stlenght,
     int8_t scalar_type)
 {
-    at::Tensor tensor = torch::from_blob(data, at::IntList(sizes, szlenght), at::IntList(strides, stlenght), at::kLong);
-
-    return new TensorWrapper(tensor);
+    return new torch::Tensor(torch::from_blob(data, at::IntList(sizes, szlenght), at::IntList(strides, stlenght), at::kLong));
 }
 
-TensorWrapper * THSTensor_newByteScalar(char data)
+Tensor THSTensor_newByteScalar(char data)
 {
-    at::Tensor tensor = torch::tensor(data);
-
-    return new TensorWrapper(tensor);
+    return new torch::Tensor(torch::tensor(data));
 }
 
-TensorWrapper * THSTensor_newShortScalar(short data)
+Tensor THSTensor_newShortScalar(short data)
 {
-    at::Tensor tensor = torch::tensor(data);
-
-    return new TensorWrapper(tensor);
+    return new torch::Tensor(torch::tensor(data));
 }
 
-TensorWrapper * THSTensor_newIntScalar(int data)
+Tensor THSTensor_newIntScalar(int data)
 {
-    at::Tensor tensor = torch::tensor(data);
-
-    return new TensorWrapper(tensor);
+    return new torch::Tensor(torch::tensor(data));
 }
 
-TensorWrapper * THSTensor_newLongScalar(int64_t data)
+Tensor THSTensor_newLongScalar(int64_t data)
 {
-    at::Tensor tensor = torch::tensor(data);
-
-    return new TensorWrapper(tensor);
+    return new torch::Tensor(torch::tensor(data));
 }
 
-TensorWrapper * THSTensor_newDoubleScalar(double data)
+Tensor THSTensor_newDoubleScalar(double data)
 {
-    at::Tensor tensor = torch::tensor(data);
-
-    return new TensorWrapper(tensor);
+    return new torch::Tensor(torch::tensor(data));
 }
 
-TensorWrapper * THSTensor_newFloatScalar(float data)
+Tensor THSTensor_newFloatScalar(float data)
 {
-    at::Tensor tensor = torch::tensor(data);
-
-    return new TensorWrapper(tensor);
+    return new torch::Tensor(torch::tensor(data));
 }
 
-TensorWrapper * THSTensor_randn(
+Tensor THSTensor_randn(
     const int64_t * sizes, 
     const int lenght, 
     const int8_t scalar_type, 
@@ -117,14 +97,12 @@ TensorWrapper * THSTensor_randn(
         .device(device)
         .requires_grad(requires_grad);
 
-    at::Tensor tensor = torch::randn(at::IntList(sizes, lenght), options);
-
-    return new TensorWrapper(tensor);
+    return new torch::Tensor(torch::randn(at::IntList(sizes, lenght), options));
 }
 
-TensorWrapper * THSTensor_sparse(
-    TensorWrapper * indices,
-    TensorWrapper * values,
+Tensor THSTensor_sparse(
+    Tensor indices,
+    Tensor values,
     const int64_t * sizes,
     const int lenght,
     const int8_t scalar_type,
@@ -136,37 +114,35 @@ TensorWrapper * THSTensor_sparse(
         .device(device)
         .requires_grad(requires_grad);
 
-    auto i = torch::autograd::as_variable_ref(indices->tensor).data();
-    auto v = torch::autograd::as_variable_ref(values->tensor).data();
+    auto i = torch::autograd::as_variable_ref(*indices).data();
+    auto v = torch::autograd::as_variable_ref(*values).data();
 
-    at::Tensor tensor = torch::sparse_coo_tensor(i, v, at::IntList(sizes, lenght), options);
-
-    return new TensorWrapper(tensor);
+    return new torch::Tensor(torch::sparse_coo_tensor(i, v, at::IntList(sizes, lenght), options));
 }
 
-THTensor * THSTensor_unsafeGetTensorImpl(const TensorWrapper * twrapper)
+THTensor * THSTensor_unsafeGetTensorImpl(const Tensor tensor)
 {
-    return twrapper->tensor.unsafeGetTensorImpl();
+    return tensor->unsafeGetTensorImpl();
 }
 
-void THSTensor_dispose(const TensorWrapper * twrapper)
+void THSTensor_dispose(const Tensor tensor)
 {
-    delete twrapper;
+    delete tensor;
 }
 
-void * THSTensor_data(const TensorWrapper * twrapper)
+void * THSTensor_data(const Tensor tensor)
 {
-    return twrapper->tensor.data_ptr();
+    return tensor->data_ptr();
 }
 
-int8_t THSTensor_type(const TensorWrapper * twrapper)
+int8_t THSTensor_type(const Tensor tensor)
 {
-    return (int8_t)twrapper->tensor.scalar_type();
+    return (int8_t)tensor->scalar_type();
 }
 
-const char* THSTensor_deviceType(const TensorWrapper * twrapper)
+const char* THSTensor_deviceType(const Tensor tensor)
 {
-    auto device = twrapper->tensor.device();
+    auto device = tensor->device();
     auto device_type = DeviceTypeName(device.type());
 
     std::transform(device_type.begin(), device_type.end(), device_type.begin(), ::tolower);
@@ -174,211 +150,180 @@ const char* THSTensor_deviceType(const TensorWrapper * twrapper)
     return makeSharableString(device_type);
 }
 
-bool THSTensor_isSparse(const TensorWrapper * twrapper)
+bool THSTensor_isSparse(const Tensor tensor)
 {
-    return twrapper->tensor.is_sparse();
+    return tensor->is_sparse();
 }
 
-bool THSTensor_isVariable(const TensorWrapper * twrapper)
+bool THSTensor_isVariable(const Tensor tensor)
 {
-    return twrapper->tensor.is_variable();
+    return tensor->is_variable();
 }
 
-TensorWrapper * THSTensor_cpu(const TensorWrapper * twrapper)
+Tensor THSTensor_cpu(const Tensor tensor)
 {
-	return new TensorWrapper(twrapper->tensor.cpu());
+	return new torch::Tensor(tensor->cpu());
 }
 
-TensorWrapper * THSTensor_cuda(const TensorWrapper * twrapper)
+Tensor THSTensor_cuda(const Tensor tensor)
 {
-	return new TensorWrapper(twrapper->tensor.cuda());
+	return new torch::Tensor(tensor->cuda());
 }
 
-TensorWrapper * THSTensor_grad(const TensorWrapper * twrapper)
+Tensor THSTensor_grad(const Tensor tensor)
 {
-    at::Tensor grad = twrapper->tensor.grad();
-    return grad.defined() ? new TensorWrapper(grad) : NULL;
+    torch::Tensor grad = tensor->grad();
+    return grad.defined() ? new torch::Tensor(grad) : NULL;
 }
 
-void THSTensor_backward(TensorWrapper * twrapper)
+void THSTensor_backward(Tensor tensor)
 {
-    twrapper->tensor.backward();
+    tensor->backward();
 }
 
-TensorWrapper * THSTensor_cat(const TensorWrapper ** twrapper, const int length, const int64_t dim)
+Tensor THSTensor_cat(const Tensor* tensors, const int length, const int64_t dim)
 {
-    std::vector<at::Tensor> tensors;
-
-    for (int i = 0; i < length; i++)
-    {
-        tensors.push_back(twrapper[i]->tensor);
-    }
-
-    return new TensorWrapper(torch::cat(tensors, dim));
+    return new torch::Tensor(torch::cat(toTensors<at::Tensor>((torch::Tensor**)tensors, length), dim));
 }
 
-TensorWrapper * THSTensor_reshape(const TensorWrapper * twrapper, const int64_t * shape, const int length)
+Tensor THSTensor_reshape(const Tensor tensor, const int64_t * shape, const int length)
 {
-    at::Tensor result = twrapper->tensor.reshape(at::IntList(shape, length));
-    return new TensorWrapper(result);
+    return new torch::Tensor(tensor->reshape(at::IntList(shape, length)));
 }
 
-TensorWrapper * THSTensor_stack(const TensorWrapper ** twrapper, const int length, const int64_t dim)
+Tensor THSTensor_stack(const Tensor* tensors, const int length, const int64_t dim)
 {
-    std::vector<at::Tensor> tensors;
-
-    for (int i = 0; i < length; i++)
-    {
-        tensors.push_back(twrapper[i]->tensor);
-    }
-
-    return new TensorWrapper(torch::stack(tensors, dim));
+    return new torch::Tensor(torch::stack(toTensors<at::Tensor>((torch::Tensor**)tensors, length), dim));
 }
 
-TensorWrapper * THSTensor_transpose(const TensorWrapper * twrapper, const int64_t dim1, const int64_t dim2)
+Tensor THSTensor_transpose(const Tensor tensor, const int64_t dim1, const int64_t dim2)
 {
-    at::Tensor result = twrapper->tensor.transpose(dim1, dim2);
-    return new TensorWrapper(result);
+    return new torch::Tensor(tensor->transpose(dim1, dim2));
 }
 
-void THSTensor_transpose_(const TensorWrapper * twrapper, const int64_t dim1, const int64_t dim2)
+void THSTensor_transpose_(const Tensor tensor, const int64_t dim1, const int64_t dim2)
 {
-    at::Tensor tensor = twrapper->tensor;
-    tensor.transpose_(dim1, dim2);
+    tensor->transpose_(dim1, dim2);
 }
 
-TensorWrapper * THSTensor_view(const TensorWrapper * twrapper, const int64_t * shape, const int length)
+Tensor THSTensor_view(const Tensor tensor, const int64_t * shape, const int length)
 {
-    at::Tensor result = twrapper->tensor.view(at::IntList(shape, length));
-    return new TensorWrapper(result);
+    return new torch::Tensor(tensor->view(at::IntList(shape, length)));
 }
 
-TensorWrapper * THSTensor_add(const TensorWrapper * lwrapper, const int value, const TensorWrapper * rwrapper)
+Tensor THSTensor_add(const Tensor left, const int value, const Tensor right)
 {
-    at::Tensor left = lwrapper->tensor;
-    return new TensorWrapper(left.add(rwrapper->tensor, value));
+    return new torch::Tensor(left->add(*right, value));
 }
 
-void THSTensor_add_(const TensorWrapper * lwrapper, const int value, const TensorWrapper * rwrapper)
+void THSTensor_add_(const Tensor left, const int value, const Tensor right)
 {
-    at::Tensor left = lwrapper->tensor;
-    left.add_(rwrapper->tensor, value);
+    left->add_(*right, value);
 }
 
-TensorWrapper * THSTensor_addbmm(
-    const TensorWrapper * matWrapper,
-    const TensorWrapper * batch1Wrapper,
-    const TensorWrapper * batch2Wrapper,
+Tensor THSTensor_addbmm(
+    const Tensor mat,
+    const Tensor batch1,
+    const Tensor batch2,
     const float beta,
     const float alpha)
 {
-    at::Tensor mat = matWrapper->tensor;
-    return new TensorWrapper(mat.addbmm(batch1Wrapper->tensor, batch2Wrapper->tensor, beta, alpha));
+    return new torch::Tensor(mat->addbmm(*batch1, *batch2, beta, alpha));
 }
 
-TensorWrapper * THSTensor_addmm(
-    const TensorWrapper * matWrapper,
-    const TensorWrapper * mat1Wrapper,
-    const TensorWrapper * mat2Wrapper,
+Tensor THSTensor_addmm(
+    const Tensor mat,
+    const Tensor mat1,
+    const Tensor mat2,
     const float beta,
     const float alpha)
 {
-    at::Tensor mat = matWrapper->tensor;
-    return new TensorWrapper(mat.addmm(mat1Wrapper->tensor, mat2Wrapper->tensor, beta, alpha));
+    return new torch::Tensor(mat->addmm(*mat1, *mat2, beta, alpha));
 }
 
-TensorWrapper * THSTensor_argmax(const TensorWrapper * twrapper, const int64_t dimension, bool keepDim)
+Tensor THSTensor_argmax(const Tensor tensor, const int64_t dimension, bool keepDim)
 {
-    return new TensorWrapper(twrapper->tensor.argmax(dimension, keepDim));
+    return new torch::Tensor(tensor->argmax(dimension, keepDim));
 }
 
-TensorWrapper * THSTensor_baddbmm(
-    const TensorWrapper * batch1Wrapper,
-    const TensorWrapper * batch2Wrapper,
-    const TensorWrapper * matWrapper,
+Tensor THSTensor_baddbmm(
+    const Tensor batch1,
+    const Tensor batch2,
+    const Tensor mat,
     const float beta,
     const float alpha)
 {
-    at::Tensor batch1 = batch1Wrapper->tensor;
-    return new TensorWrapper(batch1.baddbmm(batch2Wrapper->tensor, matWrapper->tensor, beta, alpha));
+    return new torch::Tensor(batch1->baddbmm(*batch2, *mat, beta, alpha));
 }
 
-TensorWrapper * THSTensor_bmm(const TensorWrapper * b1wrapper, const TensorWrapper * b2wrapper)
+Tensor THSTensor_bmm(const Tensor batch1, const Tensor batch2)
 {
-    at::Tensor batch1 = b1wrapper->tensor;
-    return new TensorWrapper(batch1.bmm(b2wrapper->tensor));
+    return new torch::Tensor(batch1->bmm(*batch2));
 }
 
-TensorWrapper * THSTensor_eq(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper)
+Tensor THSTensor_eq(const Tensor left, const Tensor right)
 {
-    at::Tensor left = lwrapper->tensor;
-    return new TensorWrapper(left.eq(rwrapper->tensor));
+    return new torch::Tensor(left->eq(*right));
 }
 
-TensorWrapper * THSTensor_exp(const TensorWrapper * twrapper)
+Tensor THSTensor_exp(const Tensor tensor)
 {
-    return new TensorWrapper(twrapper->tensor.exp());
+    return new torch::Tensor(tensor->exp());
 }
 
-TensorWrapper * THSTensor_matmul(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper)
+Tensor THSTensor_matmul(const Tensor left, const Tensor right)
 {
-    at::Tensor left = lwrapper->tensor;
-    return new TensorWrapper(left.matmul(rwrapper->tensor));
+    return new torch::Tensor(left->matmul(*right));
 }
 
-TensorWrapper * THSTensor_mm(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper)
+Tensor THSTensor_mm(const Tensor left, const Tensor right)
 {
-    at::Tensor left = lwrapper->tensor;
-    return new TensorWrapper(left.mm(rwrapper->tensor));
+    return new torch::Tensor(left->mm(*right));
 }
 
-TensorWrapper * THSTensor_mul(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper)
+Tensor THSTensor_mul(const Tensor left, const Tensor right)
 {
-    at::Tensor left = lwrapper->tensor;
-    return new TensorWrapper(left.mul(rwrapper->tensor));
+    return new torch::Tensor(left->mul(*right));
 }
 
-void THSTensor_mul_(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper)
+void THSTensor_mul_(const Tensor left, const Tensor right)
 {
-    at::Tensor left = lwrapper->tensor;
-    left.mul_(rwrapper->tensor);
+    left->mul_(*right);
 }
 
-TensorWrapper * THSTensor_mulS(const TensorWrapper * twrapper, const float scalar)
+Tensor THSTensor_mulS(const Tensor tensor, const float scalar)
 {
-    return new TensorWrapper(twrapper->tensor.mul(scalar));
+    return new torch::Tensor(tensor->mul(scalar));
 }
 
-TensorWrapper * THSTensor_pow(const TensorWrapper * twrapper, const float scalar)
+Tensor THSTensor_pow(const Tensor tensor, const float scalar)
 {
-    return new TensorWrapper(twrapper->tensor.pow(scalar));
+    return new torch::Tensor(tensor->pow(scalar));
 }
 
-TensorWrapper * THSTensor_sigmoid(const TensorWrapper * twrapper)
+Tensor THSTensor_sigmoid(const Tensor tensor)
 {
-    return new TensorWrapper(twrapper->tensor.sigmoid());
+    return new torch::Tensor(tensor->sigmoid());
 }
 
-TensorWrapper * THSTensor_sub(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper)
+Tensor THSTensor_sub(const Tensor left, const Tensor right)
 {
-    at::Tensor left = lwrapper->tensor;
-    return new TensorWrapper(left.sub(rwrapper->tensor));
+    return new torch::Tensor(left->sub(*right));
 }
 
-void THSTensor_sub_(const TensorWrapper * lwrapper, const TensorWrapper * rwrapper)
+void THSTensor_sub_(const Tensor left, const Tensor right)
 {
-    at::Tensor left = lwrapper->tensor;
-    left.sub_(rwrapper->tensor);
+    left->sub_(*right);
 }
 
-TensorWrapper * THSTensor_sum(const TensorWrapper * lwrapper)
+Tensor THSTensor_sum(const Tensor tensor)
 {
-    return new TensorWrapper(lwrapper->tensor.sum());
+    return new torch::Tensor(tensor->sum());
 }
 
-void THSTensor_initUniform(TensorWrapper * twrapper, double low, double high)
+void THSTensor_initUniform(Tensor tensor, double low, double high)
 {
-    torch::nn::init::uniform_(twrapper->tensor, low, high);
+    torch::nn::init::uniform_(*tensor, low, high);
 }
 
 

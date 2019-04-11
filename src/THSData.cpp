@@ -55,7 +55,7 @@ bool THSData_moveNext(DatasetIteratorBase * iterator)
     return iterator->moveNext();
 }
 
-void THSData_current(DatasetIteratorBase * iterator, TensorWrapper** data, TensorWrapper** target)
+void THSData_current(DatasetIteratorBase * iterator, Tensor* data, Tensor* target)
 {
     iterator->current(data, target);
 }

@@ -2,20 +2,17 @@
 
 #include <torch/nn/init.h>
 
-NNModuleWrapper * THSNN_reluModule()
+NNModule THSNN_reluModule()
 {
-    auto relu = torch::nn::Functional(torch::relu);
-    return new NNModuleWrapper(relu.ptr());
+    return new std::shared_ptr<torch::nn::Module>(torch::nn::Functional(torch::relu).ptr());
 }
 
-NNModuleWrapper * THSNN_linearModule(const int inputSize, const int outputSize)
+NNModule THSNN_linearModule(const int inputSize, const int outputSize)
 {
-    auto linear = torch::nn::Linear(inputSize, outputSize);
-
-    return new NNModuleWrapper(linear.ptr());
+    return new std::shared_ptr<torch::nn::Module>(torch::nn::Linear(inputSize, outputSize).ptr());
 }
 
-NNModuleWrapper * THSNN_conv2dModule(
+NNModule THSNN_conv2dModule(
     const int64_t inputChannel, 
     const int64_t outputChannel, 
     const size_t kernelSize)
@@ -23,169 +20,151 @@ NNModuleWrapper * THSNN_conv2dModule(
     auto options = torch::nn::Conv2dOptions(inputChannel, outputChannel, kernelSize);
     auto conv = torch::nn::Conv2d(options);
 
-    return new NNModuleWrapper(conv.ptr());
+    return new std::shared_ptr<torch::nn::Module>(conv.ptr());
 }
 
-long THSNN_getNumberOfChildren(const NNModuleWrapper * mwrapper)
+long THSNN_getNumberOfChildren(const NNModule module)
 {
-    return mwrapper->module->children().size();
+    return (*module)->children().size();
 }
 
-const char * THSNN_getChildModuleName(const NNModuleWrapper * mwrapper, const int index)
+const char * THSNN_getChildModuleName(const NNModule module, const int index)
 {
-    return makeSharableString(mwrapper->module->children()[index]->name());
+    return makeSharableString((*module)->children()[index]->name());
 }
 
-const char * THSNN_getModuleName(const NNModuleWrapper * mwrapper)
+const char * THSNN_getModuleName(const NNModule module)
 {
-    return makeSharableString(mwrapper->module->name());
+    return makeSharableString((*module)->name());
 }
 
-TensorWrapper * THSNN_reluApply(const TensorWrapper * tensor)
+Tensor THSNN_reluApply(const Tensor tensor)
 {
-    at::Tensor result = torch::relu(tensor->tensor);
-
-    return new TensorWrapper(result);
+    return new torch::Tensor(torch::relu(*tensor));
 }
 
-TensorWrapper * THSNN_maxPool2DApply(const TensorWrapper * tensor, const int64_t kernelSize)
+Tensor THSNN_maxPool2DApply(const Tensor tensor, const int64_t kernelSize)
 {
-    at::Tensor result = torch::max_pool2d(tensor->tensor, kernelSize);
-
-    return new TensorWrapper(result);
+    return new torch::Tensor(torch::max_pool2d(*tensor, kernelSize));
 }
 
-TensorWrapper * THSNN_logSoftMaxApply(const TensorWrapper * tensor, const int64_t dimension)
+Tensor THSNN_logSoftMaxApply(const Tensor tensor, const int64_t dimension)
 {
-    at::Tensor result = torch::log_softmax(tensor->tensor, dimension);
-
-    return new TensorWrapper(result);
+    return new torch::Tensor(torch::log_softmax(*tensor, dimension));
 }
 
-TensorWrapper * THSNN_featureDropoutApply(const TensorWrapper * tensor)
+Tensor THSNN_featureDropoutApply(const Tensor tensor)
 {
-    at::Tensor result = torch::nn::FeatureDropout()->forward(tensor->tensor);
-
-    return new TensorWrapper(result);
+    return new torch::Tensor(torch::nn::FeatureDropout()->forward(*tensor));
 }
 
-TensorWrapper * THSNN_dropoutModuleApply(
-    const TensorWrapper * tensor, 
+Tensor THSNN_dropoutModuleApply(
+    const Tensor tensor, 
     const double probability, 
     const bool isTraining)
 {
-    at::Tensor result = torch::dropout(tensor->tensor, probability, isTraining);
-
-    return new TensorWrapper(result);
+    return new torch::Tensor(torch::dropout(*tensor, probability, isTraining));
 }
 
-TensorWrapper * THSNN_linearModuleApply(
-    const NNModuleWrapper * mwrapper,
-    const TensorWrapper * tensor)
+Tensor THSNN_linearModuleApply(
+    const NNModule module,
+    const Tensor tensor)
 {
-    at::Tensor result = mwrapper->module->as<torch::nn::Linear>()->forward(tensor->tensor);
+    at::Tensor result = (*module)->as<torch::nn::Linear>()->forward(*tensor);
 
-    return new TensorWrapper(result);
+    return new torch::Tensor(result);
 }
 
-TensorWrapper * THSNN_conv2DModuleApply(
-    const NNModuleWrapper * mwrapper,
-    const TensorWrapper * tensor)
+Tensor THSNN_conv2DModuleApply(
+    const NNModule module,
+    const Tensor tensor)
 {
-    at::Tensor result = mwrapper->module->as<torch::nn::Conv2d>()->forward(tensor->tensor);
+    at::Tensor result = (*module)->as<torch::nn::Conv2d>()->forward(*tensor);
 
-    return new TensorWrapper(result);
+    return new torch::Tensor(result);
 }
 
-void THSNN_moduleZeroGrad(const NNModuleWrapper * mwrapper)
+void THSNN_moduleZeroGrad(const NNModule module)
 {
-    mwrapper->module->zero_grad();
+    (*module)->zero_grad();
 }
 
-void THSNN_optimizerZeroGrad(const NNOptimizerWrapper * owrapper)
+void THSNN_optimizerZeroGrad(const Optimizer optimizer)
 {
-    owrapper->optimizer->zero_grad();
+    (*optimizer)->zero_grad();
 }
 
 void THSNN_getParameters(
-    const NNModuleWrapper * mwrapper, 
-    TensorWrapper** (*allocator)(size_t length))
+    const NNModule module, 
+    Tensor* (*allocator)(size_t length))
 {
 
-    auto parameters = mwrapper->module->parameters();
-    TensorWrapper **result = allocator(parameters.size());
+    auto parameters = (*module)->parameters();
+    Tensor * result = allocator(parameters.size());
 
     for (int i = 0; i < parameters.size(); i++)
     {
-        result[i] = new TensorWrapper(parameters[i]);
+        result[i] = new torch::Tensor(parameters[i]);
     }
 }
 
-TensorWrapper * THSNN_lossBCE(
-    const TensorWrapper * srcwrapper, 
-    const TensorWrapper * trgwrapper, 
-    const TensorWrapper * wgtwrapper, 
+Tensor THSNN_lossBCE(
+    const Tensor src, 
+    const Tensor trg, 
+    const Tensor wgt, 
     const int64_t reduction)
 {
-    return wgtwrapper == NULL ?
-        new TensorWrapper(torch::binary_cross_entropy(srcwrapper->tensor, trgwrapper->tensor, {}, reduction)) :
-        new TensorWrapper(torch::binary_cross_entropy(srcwrapper->tensor, trgwrapper->tensor, wgtwrapper->tensor, reduction));
+    return wgt == NULL ?
+        new torch::Tensor(torch::binary_cross_entropy(*src, *trg, {}, reduction)) :
+        new torch::Tensor(torch::binary_cross_entropy(*src, *trg, *wgt, reduction));
 }
 
-TensorWrapper * THSNN_lossMSE(const TensorWrapper * srcwrapper, const TensorWrapper * trgwrapper, const int64_t reduction)
+Tensor THSNN_lossMSE(const Tensor src, const Tensor trg, const int64_t reduction)
 {
-    return new TensorWrapper(torch::mse_loss(srcwrapper->tensor, trgwrapper->tensor, reduction));
+    return new torch::Tensor(torch::mse_loss(*src, *trg, reduction));
 }
 
-TensorWrapper * THSNN_lossNLL(
-    const TensorWrapper * srcwrapper, 
-    const TensorWrapper * trgwrapper, 
-    const TensorWrapper * wgtwrapper, 
+Tensor THSNN_lossNLL(
+    const Tensor src, 
+    const Tensor trg, 
+    const Tensor wgt, 
     const int64_t reduction)
 {
-    return wgtwrapper == NULL ?
-        new TensorWrapper(torch::nll_loss(srcwrapper->tensor, trgwrapper->tensor, {}, reduction)) :
-        new TensorWrapper(torch::nll_loss(srcwrapper->tensor, trgwrapper->tensor, wgtwrapper->tensor, reduction));
+    return wgt == NULL ?
+        new torch::Tensor(torch::nll_loss(*src, *trg, {}, reduction)) :
+        new torch::Tensor(torch::nll_loss(*src, *trg, *wgt, reduction));
 }
 
-NNOptimizerWrapper * THSNN_optimizerAdam(const TensorWrapper** parameters, const int len, const double learnig_rate)
+Optimizer THSNN_optimizerAdam(const Tensor* parameters, const int lenght, const double learnig_rate)
 {
-    std::vector<at::Tensor> params;
+    auto  params = toTensors<at::Tensor>((torch::Tensor**)parameters, lenght);
 
-    for (int i = 0; i < len; i++)
-    {
-        params.push_back(parameters[i]->tensor);
-    }
+    auto optimizer = torch::optim::Adam(params, learnig_rate);
 
-    return new NNOptimizerWrapper(std::make_shared<torch::optim::Adam>(torch::optim::Adam(params, learnig_rate)));
+    return new std::shared_ptr<torch::optim::Optimizer>(std::make_shared<torch::optim::Adam>(torch::optim::Adam(params, learnig_rate)));
 }
 
-NNOptimizerWrapper * THSNN_optimizerSGD(const TensorWrapper** parameters, const int len, const double learnig_rate, const double momentum)
+Optimizer THSNN_optimizerSGD(const Tensor* parameters, const int lenght, const double learnig_rate, const double momentum)
 {
-    std::vector<at::Tensor> params;
+    auto  params = toTensors<at::Tensor>((torch::Tensor**)parameters, lenght);
     auto options = torch::optim::SGDOptions(learnig_rate)
         .momentum(momentum);
 
-    for (int i = 0; i < len; i++)
-    {
-        params.push_back(parameters[i]->tensor);
-    }
-
-    return new NNOptimizerWrapper(std::make_shared<torch::optim::SGD>(torch::optim::SGD(params, options)));
+    return new std::shared_ptr<torch::optim::Optimizer>(std::make_shared<torch::optim::SGD>(torch::optim::SGD(params, options)));
 }
 
-void THSNN_optimizerStep(const NNOptimizerWrapper * owrapper)
+void THSNN_optimizerStep(const Optimizer optimizer)
 {
-    owrapper->optimizer->step();
+    (*optimizer)->step();
 }
 
-void THSNN_optimizerDispose(const NNOptimizerWrapper * owrapper)
+void THSNN_optimizerDispose(const Optimizer optimizer)
 {
-    delete owrapper;
+    delete optimizer;
 }
 
-void THSNN_moduleDispose(const NNModuleWrapper * mwrapper)
+void THSNN_moduleDispose(const NNModule module)
 {
-    delete mwrapper;
+    delete module;
 }
 

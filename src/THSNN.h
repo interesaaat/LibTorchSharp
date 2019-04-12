@@ -73,22 +73,32 @@ THS_API void THSNN_getParameters(
 // and weights if classes are unbalanced.
 // See https://pytorch.org/docs/stable/nn.html#torch.nn.BCELoss for further details.
 THS_API Tensor THSNN_lossBCE(
-    const Tensor srcwrapper,
-    const Tensor trgwrapper,
-    const Tensor wgtwrapper,
+    const Tensor inputwrapper,
+    const Tensor targetwrapper,
+    const Tensor weightwrapper,
     const int64_t reduction);
 
 // Computes the Mean squared Error (MSE, squared L2 norm) loss between the input and target tensors, using a specified reduction type.
 // See https://pytorch.org/docs/stable/nn.html#torch.nn.MSELoss for further details.
-THS_API Tensor THSNN_lossMSE(const Tensor srcwrapper, const Tensor trgwrapper, const int64_t reduction);
+THS_API Tensor THSNN_lossMSE(const Tensor inputwrapper, const Tensor targetwrapper, const int64_t reduction);
 
 // Computes the Negative Log Likelihood (NLL) loss between the input and target tensors, using a specified reduction type
 // and weights if classes are unbalanced. It is useful to train a classification problem with C classes.
 // See https://pytorch.org/docs/stable/nn.html#torch.nn.NLLLoss for further details.
 THS_API Tensor THSNN_lossNLL(
-    const Tensor srcwrapper, 
-    const Tensor trgwrapper, 
-    const Tensor wgtwrapper, 
+    const Tensor inputwrapper, 
+    const Tensor targetwrapper, 
+    const Tensor weightwrapper, 
+    const int64_t reduction);
+
+// Negative log likelihood loss with Poisson distribution of target.
+// See https://pytorch.org/docs/stable/nn.html#poisson-nll-loss for further details.
+THS_API Tensor THSNN_lossPoissonNLL(
+    const Tensor input,
+    const Tensor target,
+    const bool logInput,
+    const bool full,
+    const double eps,
     const int64_t reduction);
 
 // Sets up the Adam optimizer

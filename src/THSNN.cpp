@@ -1,5 +1,7 @@
 #include "THSNN.h"
 
+#include <math.h>
+
 #include <torch/nn/init.h>
 
 NNModule THSNN_reluModule()
@@ -109,30 +111,71 @@ void THSNN_getParameters(
 }
 
 Tensor THSNN_lossBCE(
-    const Tensor src, 
-    const Tensor trg, 
-    const Tensor wgt, 
+    const Tensor input, 
+    const Tensor target, 
+    const Tensor weight, 
     const int64_t reduction)
 {
-    return wgt == NULL ?
-        new torch::Tensor(torch::binary_cross_entropy(*src, *trg, {}, reduction)) :
-        new torch::Tensor(torch::binary_cross_entropy(*src, *trg, *wgt, reduction));
+    return weight == NULL ?
+        new torch::Tensor(torch::binary_cross_entropy(*input, *target, {}, reduction)) :
+        new torch::Tensor(torch::binary_cross_entropy(*input, *target, *weight, reduction));
 }
 
-Tensor THSNN_lossMSE(const Tensor src, const Tensor trg, const int64_t reduction)
+Tensor THSNN_lossMSE(const Tensor input, const Tensor target, const int64_t reduction)
 {
-    return new torch::Tensor(torch::mse_loss(*src, *trg, reduction));
+    return new torch::Tensor(torch::mse_loss(*input, *target, reduction));
 }
 
 Tensor THSNN_lossNLL(
-    const Tensor src, 
-    const Tensor trg, 
-    const Tensor wgt, 
+    const Tensor input, 
+    const Tensor target, 
+    const Tensor weight, 
     const int64_t reduction)
 {
-    return wgt == NULL ?
-        new torch::Tensor(torch::nll_loss(*src, *trg, {}, reduction)) :
-        new torch::Tensor(torch::nll_loss(*src, *trg, *wgt, reduction));
+    return weight == NULL ?
+        new torch::Tensor(torch::nll_loss(*input, *target, {}, reduction)) :
+        new torch::Tensor(torch::nll_loss(*input, *target, *weight, reduction));
+}
+
+Tensor THSNN_lossPoissonNLL(
+    const Tensor input,
+    const Tensor target,
+    const bool logInput,
+    const bool full,
+    const double eps,
+    const int64_t reduction)
+{
+    torch::Tensor loss;
+
+    if (logInput)
+    {
+        loss = torch::exp(*input) - (*target) * (*input);
+    }
+    else
+    {
+        loss = (*input) - (*target) * torch::log(*input + eps);
+    }
+    
+    if (full)
+    {
+        auto mask = (*target) > 1;
+        loss[mask] += ((*target) * torch::log(*target) - (*target) + 0.5 * torch::log(2 * M_PI * (*target)))[mask];
+    }
+
+    if (reduction == Reduction::None)
+    {
+        return new torch::Tensor(loss);
+    }
+    else if (reduction == Reduction::Mean)
+    {
+        return new torch::Tensor(torch::mean(loss));
+    }
+    else if (reduction == Reduction::Sum)
+    {
+        return new torch::Tensor(torch::sum(loss));
+    }
+    
+    return NULL;
 }
 
 Optimizer THSNN_optimizerAdam(const Tensor* parameters, const int lenght, const double learnig_rate)

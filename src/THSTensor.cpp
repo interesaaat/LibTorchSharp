@@ -266,6 +266,11 @@ Tensor THSTensor_eq(const Tensor left, const Tensor right)
     return new torch::Tensor(left->eq(*right));
 }
 
+bool THSTensor_equal(const Tensor left, const Tensor right)
+{
+    return left->equal(*right);
+}
+
 Tensor THSTensor_exp(const Tensor tensor)
 {
     return new torch::Tensor(tensor->exp());
@@ -274,6 +279,11 @@ Tensor THSTensor_exp(const Tensor tensor)
 Tensor THSTensor_matmul(const Tensor left, const Tensor right)
 {
     return new torch::Tensor(left->matmul(*right));
+}
+
+Tensor THSTensor_mean(const Tensor tensor)
+{
+    return new torch::Tensor(tensor->mean());
 }
 
 Tensor THSTensor_mm(const Tensor left, const Tensor right)

@@ -150,7 +150,12 @@ THS_API Tensor THSTensor_view(const Tensor twrapper, const int64_t * shape, cons
 
 // Each element of the tensor other is multiplied by the scalar value 
 // and added to each element of the tensor input. The resulting tensor is returned.
-THS_API void THSTensor_add_(const Tensor lwrapper, const int value, const Tensor rwrapper);
+THS_API Tensor THSTensor_add(const Tensor left, const int value, const Tensor right);
+
+// Each element of the tensor other is multiplied by the scalar value 
+// and added to each element of the tensor input. The resulting tensor is returned.
+// This operation is in place.
+THS_API void THSTensor_add_(const Tensor left, const int value, const Tensor right);
 
 // Performs a batch matrix-matrix product of matrices stored in batch1 and batch2, with a reduced add step 
 // (all matrix multiplications get accumulated along the first dimension). mat is added to the final result.
@@ -188,7 +193,10 @@ THS_API Tensor THSTensor_baddbmm(
 THS_API Tensor THSTensor_bmm(const Tensor b1wrapper, const Tensor b2wrapper);
 
 // Computes element-wise equality.
-THS_API Tensor THSTensor_eq(const Tensor lwrapper, const Tensor rwrapper);
+THS_API Tensor THSTensor_eq(const Tensor left, const Tensor right);
+
+// True if two tensors have the same size and elements, False otherwise.
+THS_API bool THSTensor_equal(const Tensor left, const Tensor right);
 
 // Returns a new tensor with the exponential of the elements of the input tensor input.
 THS_API Tensor THSTensor_exp(const Tensor twrapper);
@@ -196,19 +204,22 @@ THS_API Tensor THSTensor_exp(const Tensor twrapper);
 // Matrix product of two tensors.
 // The behavior depends on the dimensionality of the tensors.
 // Check https://pytorch.org/docs/stable/torch.html#torch.matmul for details.
-THS_API Tensor THSTensor_matmul(const Tensor lwrapper, const Tensor rwrapper);
+THS_API Tensor THSTensor_matmul(const Tensor left, const Tensor right);
+
+// Returns the mean of all elements in the input tensor.
+THS_API Tensor THSTensor_mean(const Tensor tensor);
 
 // Performs a matrix multiplication of the matrices mat1 and mat2.
 // This operation does not broadcast. For broadcasting use matmul.
-THS_API Tensor THSTensor_mm(const Tensor lwrapper, const Tensor rwrapper);
+THS_API Tensor THSTensor_mm(const Tensor left, const Tensor right);
 
 // Each element of the left tensor is multiplied by each element of the rigth Tensor. 
 // The resulting tensor is returned.
-THS_API Tensor THSTensor_mul(const Tensor lwrapper, const Tensor rwrapper);
+THS_API Tensor THSTensor_mul(const Tensor left, const Tensor right);
 
 // Each element of the left tensor is multiplied by each element of the rigth Tensor. 
 // This operation is in place.
-THS_API void THSTensor_mul_(const Tensor lwrapper, const Tensor rwrapper);
+THS_API void THSTensor_mul_(const Tensor left, const Tensor right);
 
 // Multiplies each element of the target tensor with the scalar value and returns a new resulting tensor.
 THS_API Tensor THSTensor_mulS(const Tensor twrapper, const float scalar);
@@ -219,13 +230,13 @@ THS_API Tensor THSTensor_pow(const Tensor twrapper, const float scalar);
 // Returns a new tensor with the sigmoid of the elements of input.
 THS_API Tensor THSTensor_sigmoid(const Tensor twrapper);
 
-// Subtraction of rwrapper to lwrapper. 
-// The shape of rwrapper must be broadcastable with the shape of the left tensor.
-THS_API Tensor THSTensor_sub(const Tensor lwrapper, const Tensor rwrapper);
+// Subtraction of right to left. 
+// The shape of right must be broadcastable with the shape of the left tensor.
+THS_API Tensor THSTensor_sub(const Tensor left, const Tensor right);
 
-// Inplace subtraction of rwrapper to lwrapper. 
-// The shape of rwrapper must be broadcastable with the shape of the left tensor.
-THS_API void THSTensor_sub_(const Tensor lwrapper, const Tensor rwrapper);
+// Inplace subtraction of right to left. 
+// The shape of right must be broadcastable with the shape of the left tensor.
+THS_API void THSTensor_sub_(const Tensor left, const Tensor right);
 
 // Returns the sum of all elements in the input tensor.
 THS_API Tensor THSTensor_sum(const Tensor twrapper);

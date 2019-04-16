@@ -5,10 +5,6 @@
 
 #include "Utils.h"
 
-// Types for inter-op.
-
-typedef torch::Tensor * Tensor;
-
 // API.
 
 //  Creates  a variable tensor containing a tensor composed of zeros.
@@ -91,6 +87,15 @@ THS_API void THSTensor_dispose(const Tensor twrapper);
 // Note that calling GetTHTensorUnsafe and get data from there won't work 
 // (see the note [Tensor versus Variable in C++] in Aten\core\Tensor.h)
 THS_API void * THSTensor_data(const Tensor twrapper);
+
+// Returns the sub-tensor identified by the index.
+THS_API Tensor THSTensor_get1(const Tensor tensor, int64_t index);
+
+// Returns the sub-tensor identified by the indexes.
+THS_API Tensor THSTensor_get2(const Tensor tensor, int64_t index1, int64_t index2);
+
+// Returns the sub-tensor identified by the indexes.
+THS_API Tensor THSTensor_get3(const Tensor tensor, int64_t index1, int64_t index2, int64_t index3);
 
 // Returns the inner type of the tensor.
 THS_API int8_t THSTensor_type(const Tensor twrapper);
@@ -240,10 +245,3 @@ THS_API void THSTensor_sub_(const Tensor left, const Tensor right);
 
 // Returns the sum of all elements in the input tensor.
 THS_API Tensor THSTensor_sum(const Tensor twrapper);
-
-/// Fills the given 2-dimensional input tensor with values drawn from a uniform
-/// distribution parameterized by `low` and `high`.
-/// No gradient will be recorded for this operation.
-THS_API void THSTensor_initUniform(Tensor twrapper, double low, double high);
-
-

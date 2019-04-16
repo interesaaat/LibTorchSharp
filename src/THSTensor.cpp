@@ -140,6 +140,21 @@ int8_t THSTensor_type(const Tensor tensor)
     return (int8_t)tensor->scalar_type();
 }
 
+Tensor THSTensor_get1(const Tensor tensor, int64_t index)
+{
+    return new torch::Tensor((*tensor)[index]);
+}
+
+Tensor THSTensor_get2(const Tensor tensor, int64_t index1, int64_t index2)
+{
+    return new torch::Tensor((*tensor)[index1, index2]);
+}
+
+Tensor THSTensor_get3(const Tensor tensor, int64_t index1, int64_t index2, int64_t index3)
+{
+    return new torch::Tensor((*tensor)[index1, index2, index3]);
+}
+
 const char* THSTensor_deviceType(const Tensor tensor)
 {
     auto device = tensor->device();
@@ -147,7 +162,7 @@ const char* THSTensor_deviceType(const Tensor tensor)
 
     std::transform(device_type.begin(), device_type.end(), device_type.begin(), ::tolower);
 
-    return makeSharableString(device_type);
+    return make_sharable_string(device_type);
 }
 
 bool THSTensor_isSparse(const Tensor tensor)
@@ -330,10 +345,3 @@ Tensor THSTensor_sum(const Tensor tensor)
 {
     return new torch::Tensor(tensor->sum());
 }
-
-void THSTensor_initUniform(Tensor tensor, double low, double high)
-{
-    torch::nn::init::uniform_(*tensor, low, high);
-}
-
-

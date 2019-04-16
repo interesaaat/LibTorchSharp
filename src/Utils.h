@@ -5,13 +5,31 @@
 #include "TH/THGeneral.h"
 #include "torch/torch.h"
 
+extern thread_local char *torch_last_err;
+
+typedef torch::Tensor *Tensor;
+typedef torch::Scalar *Scalar;
+typedef std::shared_ptr<torch::nn::Module> * NNModule;
+typedef std::shared_ptr<torch::optim::Optimizer> * Optimizer;
+typedef std::shared_ptr<torch::jit::script::Module> * JITModule;
+typedef std::shared_ptr<c10::Type> * JITType;
+typedef std::shared_ptr<torch::jit::DynamicType> * JITDynamicType;
+typedef std::shared_ptr<torch::jit::TensorType> * JITTensorType;
+
 #define THS_API TH_API
 
-// Utility method used to built sharable strings.
-const char * makeSharableString(const std::string str);
+#define CATCH(x) \
+  try { \
+    x \
+  } catch (const exception& e) { \
+      torch_last_err = strdup(e.what()); \
+  }
 
-// Utility method used for debugging through logging.
-std::ofstream GetLog(const std::string filename);
+// Utility method used to built sharable strings.
+const char * make_sharable_string(const std::string str);
+
+// Returns the latest error. This is thread-local.
+THS_API const char * get_and_reset_last_err(); 
 
 // Method concerting arrays of tensor poninters into arrays of tensors.
 template<class T>

@@ -14,7 +14,7 @@ const char* THSJIT_getModuleName(const JITModule module, const int index)
 {
     auto keys = (*module)->get_modules().keys();
 
-    return makeSharableString(keys[index]);
+    return make_sharable_string(keys[index]);
 }
 
 JITModule THSJIT_getModuleFromIndex(const JITModule module, const int index)
@@ -105,7 +105,7 @@ const char * THSJIT_getTensorDevice(const JITTensorType type)
 
     std::transform(device_type.begin(), device_type.end(), device_type.begin(), ::tolower);
 
-    return makeSharableString(device_type);
+    return make_sharable_string(device_type);
 }
 
 Tensor THSJIT_forward(const JITModule module, const Tensor* tensorPtrs, const int length)

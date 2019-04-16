@@ -1,9 +1,11 @@
-#include "utils.h"
+#include "Utils.h"
 
 #include <cstring>
 #include <fstream>
 
-const char * makeSharableString(const std::string str)
+extern thread_local char * torch_last_err = nullptr;
+
+const char * make_sharable_string(const std::string str)
 {
     size_t size = sizeof(str);
     char* result = new char[size];
@@ -12,21 +14,9 @@ const char * makeSharableString(const std::string str)
     return result;
 }
 
-std::ofstream GetLog(const std::string filename)
+const char * get_and_reset_last_err() 
 {
-    std::ofstream logger;
-    logger.open(filename);
-    return logger;
+    char *tmp = torch_last_err;
+    torch_last_err = nullptr;
+    return tmp;
 }
-
-//std::vector<torch::Tensor> toTensors(const Tensor * tensorPtrs, const int length)
-//{
-//    std::vector<torch::Tensor> tensors;
-//
-//    for (int i = 0; i < length; i++)
-//    {
-//        tensors.push_back(*tensorPtrs[i]);
-//    }
-//
-//    return tensors;
-//}

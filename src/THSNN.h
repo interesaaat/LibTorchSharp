@@ -2,12 +2,7 @@
 
 #include "torch/torch.h"
 
-#include "THSTensor.h"
-
-// Types for inter-op.
-
-typedef std::shared_ptr<torch::nn::Module> * NNModule;
-typedef std::shared_ptr<torch::optim::Optimizer> * Optimizer;
+#include "Utils.h"
 
 // API.
 
@@ -109,6 +104,18 @@ THS_API Optimizer THSNN_optimizerSGD(const Tensor* parameters, const int len, co
 
 // Zero-ing the grad parameters for the input optimizer.
 THS_API void THSNN_optimizerStep(const Optimizer optimizer);
+
+/// Fills the given 2-dimensional input tensor with values drawn from a uniform
+/// distribution parameterized by `low` and `high`.
+/// No gradient will be recorded for this operation.
+THS_API void THSNN_initUniform(Tensor twrapper, double low, double high);
+
+// Fills the input `Tensor` with values according to the method
+/// described in "Delving deep into rectifiers: Surpassing human-level
+/// performance on ImageNet classification" - He, K. et al. (2015), using a
+/// uniform distribution. Also known as He initialization.
+/// No gradient will be recorded for this operation.
+THS_API void THSNN_initKaimingUniform(Tensor tensor, double a);
 
 // Disposes the optimizer.
 THS_API void THSNN_optimizerDispose(const Optimizer optimizer);

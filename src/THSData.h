@@ -1,6 +1,6 @@
 #pragma once
 
-#include "THSTensor.h"
+#include "Utils.h"
 
 // Inter-op classes.
 

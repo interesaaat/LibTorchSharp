@@ -2,14 +2,7 @@
 
 #include "torch/script.h"
 
-#include "THSTensor.h"
-
-// Types for inter-op.
-
-typedef std::shared_ptr<torch::jit::script::Module> * JITModule;
-typedef std::shared_ptr<c10::Type> * JITType;
-typedef std::shared_ptr<torch::jit::DynamicType> * JITDynamicType;
-typedef std::shared_ptr<torch::jit::TensorType> * JITTensorType;
+#include "Utils.h"
 
 // Copied from libtorch to share the type as an int8_t.
 enum TypeKind : int8_t {

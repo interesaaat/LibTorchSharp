@@ -1,7 +1,5 @@
 #include "THSNN.h"
 
-#include <math.h>
-
 #include <torch/nn/init.h>
 
 NNModule THSNN_reluModule()
@@ -32,12 +30,12 @@ long THSNN_getNumberOfChildren(const NNModule module)
 
 const char * THSNN_getChildModuleName(const NNModule module, const int index)
 {
-    return makeSharableString((*module)->children()[index]->name());
+    return make_sharable_string((*module)->children()[index]->name());
 }
 
 const char * THSNN_getModuleName(const NNModule module)
 {
-    return makeSharableString((*module)->name());
+    return make_sharable_string((*module)->name());
 }
 
 Tensor THSNN_reluApply(const Tensor tensor)
@@ -199,6 +197,91 @@ Optimizer THSNN_optimizerSGD(const Tensor* parameters, const int lenght, const d
 void THSNN_optimizerStep(const Optimizer optimizer)
 {
     (*optimizer)->step();
+}
+
+void THSNN_initUniform(Tensor tensor, double low, double high)
+{
+    torch::nn::init::uniform_(*tensor, low, high);
+}
+
+// ########## To remove when updating to libtorch > 1.0.1 ############
+enum class Nonlinearity {
+    Linear,
+    Conv1D,
+    Conv2D,
+    Conv3D,
+    ConvTranspose1D,
+    ConvTranspose2D,
+    ConvTranspose3D,
+    Sigmoid,
+    Tanh,
+    ReLU,
+    LeakyReLU
+};
+
+enum class FanMode { FanIn, FanOut };
+
+struct Fan {
+    explicit Fan(torch::Tensor& tensor) {
+        const auto dimensions = tensor.ndimension();
+        AT_CHECK(
+            dimensions >= 2,
+            "Fan in and fan out can not be computed for tensor with fewer than 2 dimensions");
+        if (dimensions == 2) {
+            in = tensor.size(1);
+            out = tensor.size(0);
+        }
+        else {
+            in = tensor.size(1) * tensor[0][0].numel();
+            out = tensor.size(0) * tensor[0][0].numel();
+        }
+    }
+    int64_t in;
+    int64_t out;
+};
+
+double calculate_gain(Nonlinearity nonlinearity, double param) {
+    if (nonlinearity == Nonlinearity::Tanh) {
+        return 5.0 / 3.0;
+    }
+    else if (nonlinearity == Nonlinearity::ReLU) {
+        return std::sqrt(2.0);
+    }
+    else if (nonlinearity == Nonlinearity::LeakyReLU) {
+        return std::sqrt(2.0 / (1 + pow(param, 2)));
+    }
+
+    return 1.0;
+}
+
+double calculate_kaiming_std(
+    Tensor tensor,
+    double a,
+    FanMode mode,
+    Nonlinearity nonlinearity) {
+    torch::NoGradGuard guard;
+    Fan fan((*tensor));
+    const auto gain = calculate_gain(nonlinearity, a);
+    double std = 0.0;
+    if (mode == FanMode::FanIn) {
+        std = gain / std::sqrt(fan.in);
+    }
+    else {
+        std = gain / std::sqrt(fan.out);
+    }
+    return std;
+}
+
+// ######################################################
+
+void THSNN_initKaimingUniform(Tensor tensor, double a)
+{
+    //torch::nn::init::kaiming_uniform_(*tensor, a);
+    // Since this is not available in PyTorch 1.0.1 will just used the original code for the moment
+    auto std = calculate_kaiming_std(tensor, a, FanMode::FanIn, Nonlinearity::LeakyReLU);
+    // Calculate uniform bounds from standard deviation
+    const auto bound = std::sqrt(3.0) * std;
+    tensor->uniform_(-bound, bound);
 }
 
 void THSNN_optimizerDispose(const Optimizer optimizer)

@@ -7,9 +7,10 @@ NNModule THSNN_reluModule()
     return new std::shared_ptr<torch::nn::Module>(torch::nn::Functional(torch::relu).ptr());
 }
 
-NNModule THSNN_linearModule(const int inputSize, const int outputSize)
+NNModule THSNN_linearModule(const int inputSize, const int outputSize, const bool with_bias)
 {
-    return new std::shared_ptr<torch::nn::Module>(torch::nn::Linear(inputSize, outputSize).ptr());
+    auto options = torch::nn::LinearOptions(inputSize, outputSize).with_bias(with_bias);
+    return new std::shared_ptr<torch::nn::Module>(torch::nn::Linear(options).ptr());
 }
 
 NNModule THSNN_conv2dModule(
@@ -82,6 +83,43 @@ Tensor THSNN_conv2DModuleApply(
     at::Tensor result = (*module)->as<torch::nn::Conv2d>()->forward(*tensor);
 
     return new torch::Tensor(result);
+}
+
+bool THSNN_linear_with_bias(const NNModule module)
+{
+    return (*module)->as<torch::nn::Linear>()->options.with_bias_;
+}
+
+Tensor THSNN_linear_get_bias(const NNModule module)
+{
+    auto linear_module = (*module)->as<torch::nn::Linear>();
+
+    if (linear_module->options.with_bias_)
+    {
+        return new torch::Tensor(linear_module->bias);
+    }
+    return nullptr;
+}
+
+void THSNN_linear_set_bias(const NNModule module, Tensor tensor)
+{
+    auto linear_module = (*module)->as<torch::nn::Linear>();
+
+    if (linear_module->options.with_bias_) {
+        linear_module->bias = *tensor;
+    }
+}
+
+Tensor THSNN_linear_get_weight(const NNModule module)
+{
+    return new torch::Tensor((*module)->as<torch::nn::Linear>()->weight);
+}
+
+void THSNN_linear_set_weight(const NNModule module, Tensor tensor)
+{
+    auto linear_module = (*module)->as<torch::nn::Linear>();
+
+    linear_module->weight = std::move(*tensor);
 }
 
 void THSNN_moduleZeroGrad(const NNModule module)
@@ -173,7 +211,7 @@ Tensor THSNN_lossPoissonNLL(
         return new torch::Tensor(torch::sum(loss));
     }
     
-    return NULL;
+    return nullptr;
 }
 
 Optimizer THSNN_optimizerAdam(const Tensor* parameters, const int lenght, const double learnig_rate)

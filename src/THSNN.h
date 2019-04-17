@@ -10,7 +10,7 @@
 THS_API NNModule THSNN_reluModule();
 
 // Returns a linear layer.
-THS_API NNModule THSNN_linearModule(const int inputSize, const int outputSize);
+THS_API NNModule THSNN_linearModule(const int inputSize, const int outputSize, const bool with_bias);
 
 // Returns a Conv2d layer.
 THS_API NNModule THSNN_conv2dModule(
@@ -52,6 +52,21 @@ THS_API Tensor THSNN_linearModuleApply(const NNModule module, const Tensor tenso
 THS_API Tensor THSNN_conv2DModuleApply(
     const NNModule module,
     const Tensor tensor);
+
+// Whether the linear module was setup with bias or not.
+THS_API bool THSNN_linear_with_bias(const NNModule module);
+
+// Returns the bias term of the linear module.
+THS_API Tensor THSNN_linear_get_bias(const NNModule module);
+
+// Sets the bias term for the linear module.
+THS_API void THSNN_linear_set_bias(const NNModule module, const Tensor tensor);
+
+// Returns the weights of the linear module.
+THS_API Tensor THSNN_linear_get_weight(const NNModule module);
+
+// Sets the weights of the linear module.
+THS_API void THSNN_linear_set_weight(const NNModule module, Tensor tensor);
 
 // Zero-ing the grad parameters for the input functional module.
 THS_API void THSNN_moduleZeroGrad(const NNModule module);

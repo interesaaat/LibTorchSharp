@@ -2,26 +2,104 @@
 
 #include <torch/nn/init.h>
 
+// Wrapper class used to enable the addition of parameters.
+class ModuleWrapper : torch::nn::Module
+{
+    public :
+        ModuleWrapper(const char ** names, at::Tensor ** parameters, const bool * require_grad, const int length)
+        {
+            for (int i = 0; i < length; i++)
+            {
+                register_parameter(names[i], *parameters[i], require_grad[i]);
+            }
+        }
+};
+
+// API
+
 NNModule THSNN_reluModule()
 {
     return new std::shared_ptr<torch::nn::Module>(torch::nn::Functional(torch::relu).ptr());
 }
 
-NNModule THSNN_linearModule(const int inputSize, const int outputSize, const bool with_bias)
+NNModule THSNN_linearModule(const int64_t input_size, const int64_t output_size, const bool with_bias)
 {
-    auto options = torch::nn::LinearOptions(inputSize, outputSize).with_bias(with_bias);
+    auto options = torch::nn::LinearOptions(input_size, output_size).with_bias(with_bias);
     return new std::shared_ptr<torch::nn::Module>(torch::nn::Linear(options).ptr());
 }
 
 NNModule THSNN_conv2dModule(
-    const int64_t inputChannel, 
-    const int64_t outputChannel, 
+    const int64_t inputChannel,
+    const int64_t outputChannel,
     const size_t kernelSize)
 {
     auto options = torch::nn::Conv2dOptions(inputChannel, outputChannel, kernelSize);
     auto conv = torch::nn::Conv2d(options);
 
     return new std::shared_ptr<torch::nn::Module>(conv.ptr());
+
+}
+
+NNModule THSNN_new_module(const char ** names, at::Tensor ** parameters, const bool * require_grad, const int length)
+{
+    torch::nn::Module* module = (torch::nn::Module*)new ModuleWrapper(names, parameters, require_grad, length);
+    return new std::shared_ptr<torch::nn::Module>(module);
+}
+
+bool THSNN_has_parameter(const NNModule module, const char * name)
+{
+    return (*module)->named_parameters().contains(name);
+}
+
+Tensor THSNN_get_parameter(const NNModule module, const char * name)
+{
+    return new torch::Tensor(*(*module)->named_parameters().find(name));
+}
+
+void THSNN_get_parameters(
+    const NNModule module,
+    Tensor* (*allocator1)(size_t length))
+{
+
+    auto parameters = (*module)->named_parameters();
+    Tensor * result1 = allocator1(parameters.size());
+
+    for (int i = 0; i < parameters.size(); i++)
+    {
+        result1[i] = new torch::Tensor(parameters[i].value());
+    }
+}
+
+void THSNN_get_named_parameters(
+    const NNModule module,
+    Tensor* (*allocator1)(size_t length),
+    const char** (*allocator2)(size_t length))
+{
+
+    auto parameters = (*module)->named_parameters();
+    Tensor * result1 = allocator1(parameters.size());
+    const char ** result2 = allocator2(parameters.size());
+
+    for (int i = 0; i < parameters.size(); i++)
+    {
+        result1[i] = new torch::Tensor(parameters[i].value());
+        result2[i] = make_sharable_string(parameters[i].key());
+    }
+}
+
+bool THSNN_is_training(NNModule module)
+{
+    return (*module)->is_training();
+}
+
+void THSNN_train(NNModule module)
+{
+    (*module)->train();
+}
+
+void THSNN_eval(NNModule module)
+{
+    (*module)->eval();
 }
 
 long THSNN_getNumberOfChildren(const NNModule module)
@@ -85,6 +163,28 @@ Tensor THSNN_conv2DModuleApply(
     return new torch::Tensor(result);
 }
 
+//void THSNN_module_register_parameter(const NNModule module)
+//{
+//    auto log = GetLog("log");
+//    log << "ok";
+//    try {
+//        auto module2 = (*module);
+//        auto module3 = (*module2).as<Module>();
+//        module3->register_paramete("test", torch::zeros({2, 2}));
+//        //(*module)->as<Module>().register_parameter(name, tensor);
+//    }
+//    catch (c10::Error e)
+//    {
+//        log << e.what();
+//        log.close();
+//    }
+//    catch (std::exception e)
+//    {
+//        log << e.what();
+//        log.close();
+//    }
+//}
+
 bool THSNN_linear_with_bias(const NNModule module)
 {
     return (*module)->as<torch::nn::Linear>()->options.with_bias_;
@@ -119,7 +219,7 @@ void THSNN_linear_set_weight(const NNModule module, Tensor tensor)
 {
     auto linear_module = (*module)->as<torch::nn::Linear>();
 
-    linear_module->weight = std::move(*tensor);
+    linear_module->weight = *tensor;
 }
 
 void THSNN_moduleZeroGrad(const NNModule module)
@@ -130,20 +230,6 @@ void THSNN_moduleZeroGrad(const NNModule module)
 void THSNN_optimizerZeroGrad(const Optimizer optimizer)
 {
     (*optimizer)->zero_grad();
-}
-
-void THSNN_getParameters(
-    const NNModule module, 
-    Tensor* (*allocator)(size_t length))
-{
-
-    auto parameters = (*module)->parameters();
-    Tensor * result = allocator(parameters.size());
-
-    for (int i = 0; i < parameters.size(); i++)
-    {
-        result[i] = new torch::Tensor(parameters[i]);
-    }
 }
 
 Tensor THSNN_lossBCE(

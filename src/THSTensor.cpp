@@ -211,6 +211,11 @@ Tensor THSTensor_stack(const Tensor* tensors, const int length, const int64_t di
     return new torch::Tensor(torch::stack(toTensors<at::Tensor>((torch::Tensor**)tensors, length), dim));
 }
 
+Tensor THSTensor_t(const Tensor tensor)
+{
+    return new torch::Tensor(tensor->t());
+}
+
 Tensor THSTensor_transpose(const Tensor tensor, const int64_t dim1, const int64_t dim2)
 {
     return new torch::Tensor(tensor->transpose(dim1, dim2));

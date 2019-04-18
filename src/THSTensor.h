@@ -139,7 +139,10 @@ THS_API Tensor THSTensor_reshape(const Tensor twrapper, const int64_t * shape, c
 // All tensors need to be of the same size.
 THS_API Tensor THSTensor_stack(const Tensor* twrapper, const int length, const int64_t dim);
 
-// Returns a tensor that is a transposed version of input.The given dimensions dim0 and dim1 are swapped.
+// Returns a tensor that is a transposed version of input. 
+THS_API Tensor THSTensor_t(const Tensor tensor);
+
+// Returns a tensor that is a transposed version of input. The given dimensions dim0 and dim1 are swapped.
 THS_API Tensor THSTensor_transpose(const Tensor twrapper, const int64_t dim1, const int64_t dim2);
 
 // Returns a tensor that is a transposed version of input.The given dimensions dim0 and dim1 are swapped.

@@ -10,13 +10,39 @@
 THS_API NNModule THSNN_reluModule();
 
 // Returns a linear layer.
-THS_API NNModule THSNN_linearModule(const int inputSize, const int outputSize, const bool with_bias);
+THS_API NNModule THSNN_linearModule(const int64_t input_size, const int64_t output_size, const bool with_bias);
 
 // Returns a Conv2d layer.
 THS_API NNModule THSNN_conv2dModule(
     const int64_t inputChannel, 
     const int64_t outputChannel, 
     const size_t kernelSize);
+
+THS_API NNModule THSNN_new_module(const char ** names, at::Tensor ** parameters, const bool * require_grad, const int length);
+
+THS_API bool THSNN_has_parameter(const NNModule module, const char * name);
+
+THS_API Tensor THSNN_get_parameter(const NNModule module, const char * name);
+
+// Gets the named parameters of the module.
+THS_API void THSNN_get_named_parameters(
+    const NNModule module,
+    Tensor* (*allocator1)(size_t length),
+    const char** (*allocator2)(size_t length));
+
+// Gets the parameters of the module.
+THS_API void THSNN_get_parameters(
+    const NNModule module,
+    Tensor* (*allocator1)(size_t length));
+
+// Whether the module is in train mode.
+THS_API bool THSNN_is_training(NNModule module);
+
+// Notify the module to run in train mode.
+THS_API void THSNN_train(NNModule module);
+
+// Notify the module to run in eval mode.
+THS_API void THSNN_eval(NNModule module);
 
 // Gets the number of children modules.
 THS_API long THSNN_getNumberOfChildren(const NNModule module);
@@ -53,6 +79,8 @@ THS_API Tensor THSNN_conv2DModuleApply(
     const NNModule module,
     const Tensor tensor);
 
+//THS_API void THSNN_module_register_parameter(const NNModule module);
+
 // Whether the linear module was setup with bias or not.
 THS_API bool THSNN_linear_with_bias(const NNModule module);
 
@@ -73,11 +101,6 @@ THS_API void THSNN_moduleZeroGrad(const NNModule module);
 
 // Zero-ing the grad parameters for the input optimizer.
 THS_API void THSNN_optimizerZeroGrad(const Optimizer optimizer);
-
-// Gets the parameters of the module.
-THS_API void THSNN_getParameters(
-    const NNModule module,
-    Tensor* (*allocator)(size_t length));
 
 // Computes the Binary Cross Entropy (BCE) loss between input and target tensors, using a specified reduction type
 // and weights if classes are unbalanced.

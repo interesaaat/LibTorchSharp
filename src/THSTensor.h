@@ -23,6 +23,14 @@ THS_API Tensor THSTensor_ones(
     const char * device,
     const bool requires_grad);
 
+//  Creates  a variable tensor containing a an empty tensor.
+THS_API Tensor THSTensor_empty(
+    const int64_t * sizes,
+    const int lenght,
+    const int8_t scalar_type,
+    const char * device,
+    const bool requires_grad);
+
 //  Creates  a variable tensor out of the input data, dimensions and strides.
 THS_API Tensor THSTensor_new(
     void * data,
@@ -77,8 +85,14 @@ THS_API Tensor THSTensor_sparse(
     const char * device,
     const bool requires_grad);
 
-// Returns the internal tensor implementation.
-THS_API THTensor * THSTensor_unsafeGetTensorImpl(const Tensor twrapper);
+// Returns the number of dimensions of the input tensor.
+THS_API int64_t THSTensor_ndimension(const Tensor tensor);
+
+// Returns the size of the target dimension of the input tensor.
+THS_API int64_t THSTensor_size(const Tensor tensor, const int64_t dimension);
+
+// Returns the stride of the target dimension of the input tensor.
+THS_API int64_t THSTensor_stride(const Tensor tensor, const int64_t dimension);
 
 // Disposes the tensor.
 THS_API void THSTensor_dispose(const Tensor twrapper);

@@ -6,7 +6,11 @@
 class ModuleWrapper : torch::nn::Module
 {
     public :
-        ModuleWrapper(const char ** names, at::Tensor ** parameters, const bool * require_grad, const int length)
+        ModuleWrapper(
+            const char ** names, 
+            at::Tensor ** parameters, 
+            const bool * require_grad, const int length)
+            : torch::nn::Module("Module")
         {
             for (int i = 0; i < length; i++)
             {
@@ -162,28 +166,6 @@ Tensor THSNN_conv2DModuleApply(
 
     return new torch::Tensor(result);
 }
-
-//void THSNN_module_register_parameter(const NNModule module)
-//{
-//    auto log = GetLog("log");
-//    log << "ok";
-//    try {
-//        auto module2 = (*module);
-//        auto module3 = (*module2).as<Module>();
-//        module3->register_paramete("test", torch::zeros({2, 2}));
-//        //(*module)->as<Module>().register_parameter(name, tensor);
-//    }
-//    catch (c10::Error e)
-//    {
-//        log << e.what();
-//        log.close();
-//    }
-//    catch (std::exception e)
-//    {
-//        log << e.what();
-//        log.close();
-//    }
-//}
 
 bool THSNN_linear_with_bias(const NNModule module)
 {

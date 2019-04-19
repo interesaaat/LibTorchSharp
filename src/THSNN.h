@@ -79,8 +79,6 @@ THS_API Tensor THSNN_conv2DModuleApply(
     const NNModule module,
     const Tensor tensor);
 
-//THS_API void THSNN_module_register_parameter(const NNModule module);
-
 // Whether the linear module was setup with bias or not.
 THS_API bool THSNN_linear_with_bias(const NNModule module);
 
@@ -145,7 +143,7 @@ THS_API void THSNN_optimizerStep(const Optimizer optimizer);
 
 /// Fills the given 2-dimensional input tensor with values drawn from a uniform
 /// distribution parameterized by `low` and `high`.
-/// No gradient will be recorded for this operation.
+/// No gradient will be recorded for this operation. This opeartion is in place.
 THS_API void THSNN_initUniform(Tensor twrapper, double low, double high);
 
 // Fills the input `Tensor` with values according to the method

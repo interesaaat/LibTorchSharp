@@ -30,6 +30,21 @@ Tensor THSTensor_ones(
     return new torch::Tensor(torch::ones(at::IntList(sizes, lenght), options));
 }
 
+Tensor THSTensor_empty(
+    const int64_t * sizes,
+    const int lenght,
+    const int8_t scalar_type,
+    const char * device,
+    const bool requires_grad)
+{
+    auto options = at::TensorOptions()
+        .dtype(at::ScalarType(scalar_type))
+        .device(device)
+        .requires_grad(requires_grad);
+
+    return new torch::Tensor(torch::empty(at::IntList(sizes, lenght), options));
+}
+
 Tensor THSTensor_new(
     void * data, 
     const int64_t * sizes, 
@@ -120,9 +135,19 @@ Tensor THSTensor_sparse(
     return new torch::Tensor(torch::sparse_coo_tensor(i, v, at::IntList(sizes, lenght), options));
 }
 
-THTensor * THSTensor_unsafeGetTensorImpl(const Tensor tensor)
+int64_t THSTensor_ndimension(const Tensor tensor)
 {
-    return tensor->unsafeGetTensorImpl();
+    return tensor->ndimension();
+}
+
+int64_t THSTensor_stride(const Tensor tensor, const int64_t dimension)
+{
+    return tensor->stride(dimension);
+}
+
+int64_t THSTensor_size(const Tensor tensor, const int64_t dimension)
+{
+    return tensor->size(dimension);
 }
 
 void THSTensor_dispose(const Tensor tensor)

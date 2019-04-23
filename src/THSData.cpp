@@ -52,7 +52,8 @@ size_t THSData_size(DatasetIteratorBase * iterator)
 
 bool THSData_moveNext(DatasetIteratorBase * iterator)
 {
-    return iterator->moveNext();
+    bool result = iterator->moveNext();
+    return result;
 }
 
 void THSData_current(DatasetIteratorBase * iterator, Tensor* data, Tensor* target)

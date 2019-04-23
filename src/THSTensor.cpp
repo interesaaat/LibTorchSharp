@@ -207,12 +207,14 @@ const char* THSTensor_deviceType(const Tensor tensor)
 
 bool THSTensor_isSparse(const Tensor tensor)
 {
-    return tensor->is_sparse();
+    bool result = tensor->is_sparse();
+    return result;
 }
 
 bool THSTensor_isVariable(const Tensor tensor)
 {
-    return tensor->is_variable();
+    bool result = tensor->is_variable();
+    return result;
 }
 
 Tensor THSTensor_cpu(const Tensor tensor)
@@ -328,7 +330,8 @@ Tensor THSTensor_eq(const Tensor left, const Tensor right)
 
 bool THSTensor_equal(const Tensor left, const Tensor right)
 {
-    return left->equal(*right);
+    bool result = left->equal(*right);
+    return result;
 }
 
 Tensor THSTensor_exp(const Tensor tensor)

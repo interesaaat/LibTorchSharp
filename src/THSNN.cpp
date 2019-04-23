@@ -52,7 +52,8 @@ NNModule THSNN_new_module(const char ** names, at::Tensor ** parameters, const b
 
 bool THSNN_has_parameter(const NNModule module, const char * name)
 {
-    return (*module)->named_parameters().contains(name);
+    bool result = (*module)->named_parameters().contains(name);
+    return result;
 }
 
 Tensor THSNN_get_parameter(const NNModule module, const char * name)
@@ -93,7 +94,8 @@ void THSNN_get_named_parameters(
 
 bool THSNN_is_training(NNModule module)
 {
-    return (*module)->is_training();
+    bool result = (*module)->is_training();
+    return result;
 }
 
 void THSNN_train(NNModule module)
@@ -169,7 +171,8 @@ Tensor THSNN_conv2DModuleApply(
 
 bool THSNN_linear_with_bias(const NNModule module)
 {
-    return (*module)->as<torch::nn::Linear>()->options.with_bias_;
+    bool result = (*module)->as<torch::nn::Linear>()->options.with_bias_;
+    return result;
 }
 
 Tensor THSNN_linear_get_bias(const NNModule module)
@@ -262,8 +265,16 @@ Tensor THSNN_lossPoissonNLL(
     
     if (full)
     {
-        auto mask = (*target) > 1;
-        loss[mask] += ((*target) * torch::log(*target) - (*target) + 0.5 * torch::log(2 * M_PI * (*target)))[mask];
+        try {
+            auto mask = (*target) > 1;
+            loss[mask] += ((*target) * torch::log(*target) - (*target) + 0.5 * torch::log(2 * M_PI * (*target)))[mask];
+        }
+        catch (c10::Error e)
+        {
+            auto log = GetLog("log");
+            log << e.what();
+            log.close();
+        }
     }
 
     if (reduction == Reduction::None)

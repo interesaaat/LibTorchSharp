@@ -4,7 +4,8 @@
 
 bool THSAutograd_isGradEnabled()
 {
-    return torch::autograd::GradMode::is_enabled();
+    bool result = torch::autograd::GradMode::is_enabled();
+    return result;
 }
 
 void THSAutograd_setGrad(bool enabled)

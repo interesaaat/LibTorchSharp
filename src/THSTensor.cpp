@@ -100,6 +100,21 @@ Tensor THSTensor_newFloatScalar(float data)
     return new torch::Tensor(torch::tensor(data));
 }
 
+Tensor THSTensor_rand(
+    const int64_t * sizes,
+    const int lenght,
+    const int8_t scalar_type,
+    const char * device,
+    const bool requires_grad)
+{
+    auto options = at::TensorOptions()
+        .dtype(at::ScalarType(scalar_type))
+        .device(device)
+        .requires_grad(requires_grad);
+
+    return new torch::Tensor(torch::rand(at::IntList(sizes, lenght), options));
+}
+
 Tensor THSTensor_randn(
     const int64_t * sizes, 
     const int lenght, 

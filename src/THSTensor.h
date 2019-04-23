@@ -66,6 +66,14 @@ THS_API Tensor THSTensor_newDoubleScalar(double data);
 //  Creates  a variable tensor wrapping the input scalar.
 THS_API Tensor THSTensor_newFloatScalar(float data);
 
+// Returns a variable tensor filled with random numbers from a uniform distribution within [0, 1).
+THS_API Tensor THSTensor_rand(
+    const int64_t * sizes,
+    const int lenght,
+    const int8_t scalar_type,
+    const char * device,
+    const bool requires_grad);
+
 // Returns a variable tensor filled with random numbers from a normal distribution with mean 0 and variance 1.
 THS_API Tensor THSTensor_randn(
     const int64_t * sizes,

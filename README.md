@@ -7,8 +7,8 @@
 * libtorch download [here](https://pytorch.org/get-started/locally/)
 
 ### How to generate project files
- * Windows: `cmake -DTorch_DIR="YOUR_libtorch_DIR_with_cmake_file" . -G "Visual Studio 15 2017 Win64"`
- * Linux: `cmake -DTorch_DIR="YOUR_libtorch_DIR_with_cmake_file" .`
+ * Windows: `cmake -DTorch_DIR="YOUR_libtorch_DIR\share\cmake\Torch" . -G "Visual Studio 15 2017 Win64"`
+ * Linux: `cmake -DTorch_DIR="YOUR_libtorch_DIR/share/cmake/Torch" .`
  * For CUDA support add `-DCMAKE_BUILD_TYPE="Release"` to the commands above.
 
 ### How to build in Windows
@@ -22,5 +22,5 @@
 ### Tested on
 * Windows 10 machine (with Linux subsystem)
 * Ubuntu 18.04
-* libtorch => 1.0
+* libtorch 1.0 and 1.0.1
 * Visual Studio 2017 (v141, Windows SDK 10.0.17134.0)

@@ -256,6 +256,16 @@ Tensor THSTensor_cat(const Tensor* tensors, const int length, const int64_t dim)
     return new torch::Tensor(torch::cat(toTensors<at::Tensor>((torch::Tensor**)tensors, length), dim));
 }
 
+Tensor THSTensor_index_select(Tensor tensor, int64_t dimension, Tensor index)
+{
+    return new torch::Tensor(tensor->index_select(dimension, *index));
+}
+
+Tensor THSTensor_squeeze(Tensor tensor, int64_t dimension)
+{
+    return new torch::Tensor(tensor->squeeze(dimension));
+}
+
 Tensor THSTensor_reshape(const Tensor tensor, const int64_t * shape, const int length)
 {
     return new torch::Tensor(tensor->reshape(at::IntList(shape, length)));
@@ -344,6 +354,11 @@ Tensor THSTensor_div(const Tensor left, const Tensor right)
 void THSTensor_div_(const Tensor left, const Tensor right)
 {
     left->div_(*right);
+}
+
+Tensor THSTensor_divS(const Tensor left, const int right)
+{
+    return new torch::Tensor(left->div(right));
 }
 
 Tensor THSTensor_eq(const Tensor left, const Tensor right)

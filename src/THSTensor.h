@@ -160,11 +160,17 @@ THS_API Tensor THSTensor_to_dense(Tensor tensor);
 // See https://pytorch.org/docs/stable/torch.html#torch.cat for examples.
 THS_API Tensor THSTensor_cat(const Tensor* twrapper, const int length, const int64_t dim);
 
+// Returns a new tensor which indexes the input tensor along dimension dim using the entries in index.
+THS_API Tensor THSTensor_index_select(Tensor tensor, int64_t dimension, Tensor index);
+
 // Returns a tensor with the same data and number of elements as input, but with the specified shape.
 // When possible, the returned tensor will be a view of input.Otherwise, it will be a copy.
 // Contiguous inputs and inputs with compatible strides can be reshaped without copying, 
 // but you should not depend on the copying vs.viewing behavior.
 THS_API Tensor THSTensor_reshape(const Tensor twrapper, const int64_t * shape, const int length);
+
+// Returns a tensor with all the dimensions of input of size 1 removed.
+THS_API Tensor THSTensor_squeeze(Tensor tensor, int64_t dimension);
 
 // Concatenates sequence of tensors along a new dimension.
 // All tensors need to be of the same size.
@@ -236,6 +242,9 @@ THS_API Tensor THSTensor_div(const Tensor left, const Tensor right);
 
 // Returns left / right in place.
 THS_API void THSTensor_div_(const Tensor left, const Tensor right);
+
+// Returns left / right. 
+THS_API Tensor THSTensor_divS(const Tensor left, const int right);
 
 // Computes element-wise equality.
 THS_API Tensor THSTensor_eq(const Tensor left, const Tensor right);

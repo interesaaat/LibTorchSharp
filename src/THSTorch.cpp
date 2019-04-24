@@ -7,8 +7,7 @@ void THSTorch_seed(const int64_t seed)
     torch::manual_seed(seed);
 }
 
-bool THSTorch_isCudaAvailable()
+int THSTorch_isCudaAvailable()
 {
-    bool result = torch::cuda::is_available();
-    return result;
+    return torch::cuda::is_available();
 }

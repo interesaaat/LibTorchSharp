@@ -10,7 +10,7 @@
 //  Creates  a variable tensor containing a tensor composed of zeros.
 THS_API Tensor THSTensor_zeros(
     const int64_t * sizes,
-    const int lenght,
+    const int length,
     const int8_t scalar_type,
     const char * device,
     const bool requires_grad);
@@ -18,7 +18,7 @@ THS_API Tensor THSTensor_zeros(
 //  Creates  a variable tensor containing a tensor composed of ones.
 THS_API Tensor THSTensor_ones(
     const int64_t * sizes,
-    const int lenght,
+    const int length,
     const int8_t scalar_type,
     const char * device,
     const bool requires_grad);
@@ -26,7 +26,7 @@ THS_API Tensor THSTensor_ones(
 //  Creates  a variable tensor containing a an empty tensor.
 THS_API Tensor THSTensor_empty(
     const int64_t * sizes,
-    const int lenght,
+    const int length,
     const int8_t scalar_type,
     const char * device,
     const bool requires_grad);
@@ -35,17 +35,17 @@ THS_API Tensor THSTensor_empty(
 THS_API Tensor THSTensor_new(
     void * data,
     const int64_t * sizes,
-    const int szlenght,
+    const int szlength,
     const int64_t * strides,
-    const int stlenght,
+    const int stlength,
     int8_t scalar_type);
 
 THS_API Tensor THSTensor_newLong(
     int64_t * data,
     const int64_t * sizes,
-    const int szlenght,
+    const int szlength,
     const int64_t * strides,
-    const int stlenght,
+    const int stlength,
     int8_t scalar_type);
 
 //  Creates  a variable tensor wrapping the input scalar.
@@ -69,7 +69,7 @@ THS_API Tensor THSTensor_newFloatScalar(float data);
 // Returns a variable tensor filled with random numbers from a uniform distribution within [0, 1).
 THS_API Tensor THSTensor_rand(
     const int64_t * sizes,
-    const int lenght,
+    const int length,
     const int8_t scalar_type,
     const char * device,
     const bool requires_grad);
@@ -77,7 +77,7 @@ THS_API Tensor THSTensor_rand(
 // Returns a variable tensor filled with random numbers from a normal distribution with mean 0 and variance 1.
 THS_API Tensor THSTensor_randn(
     const int64_t * sizes,
-    const int lenght,
+    const int length,
     const int8_t scalar_type,
     const char * device,
     const bool requires_grad);
@@ -88,7 +88,7 @@ THS_API Tensor THSTensor_sparse(
     Tensor indices,
     Tensor values,
     const int64_t * sizes,
-    const int lenght,
+    const int length,
     const int8_t scalar_type,
     const char * device,
     const bool requires_grad);
@@ -126,10 +126,16 @@ THS_API int8_t THSTensor_type(const Tensor twrapper);
 THS_API const char* THSTensor_deviceType(const Tensor twrapper);
 
 // Returns whether the input tensor is sparse or not.
-THS_API bool THSTensor_isSparse(const Tensor twrapper);
+THS_API int THSTensor_isSparse(const Tensor twrapper);
 
 // Returns whether the input tensor is a variable or not.
-THS_API bool THSTensor_isVariable(const Tensor twrapper);
+THS_API int THSTensor_isVariable(const Tensor twrapper);
+
+// Returns the indices  of the sparse tensor.
+THS_API Tensor THSTensor_indices(Tensor tensor);
+
+// Returns the values of the sparse tensor.
+THS_API Tensor THSTensor_values(Tensor tensor);
 
 //  Creates  a copy of this tensor (if necessary) on a CPU device.
 // If this tensor is already on the CPU device, it does not  Creates  a copy.
@@ -145,6 +151,9 @@ THS_API Tensor THSTensor_grad(const Tensor twrapper);
 
 // Backard pass starting from the input tensor.
 THS_API void THSTensor_backward(Tensor twrapper);
+
+// Turns a sparse tensor into a dense representation.
+THS_API Tensor THSTensor_to_dense(Tensor tensor);
 
 // Concatenates the given sequence of seq tensors in the given dimension. 
 // All tensors must either have the same shape (except in the concatenating dimension) or be empty.
@@ -222,11 +231,17 @@ THS_API Tensor THSTensor_baddbmm(
 // Performs a batch matrix-matrix product of matrices stored in batch1 and batch2.
 THS_API Tensor THSTensor_bmm(const Tensor b1wrapper, const Tensor b2wrapper);
 
+// Returns left / right. 
+THS_API Tensor THSTensor_div(const Tensor left, const Tensor right);
+
+// Returns left / right in place.
+THS_API void THSTensor_div_(const Tensor left, const Tensor right);
+
 // Computes element-wise equality.
 THS_API Tensor THSTensor_eq(const Tensor left, const Tensor right);
 
 // True if two tensors have the same size and elements, False otherwise.
-THS_API bool THSTensor_equal(const Tensor left, const Tensor right);
+THS_API int THSTensor_equal(const Tensor left, const Tensor right);
 
 // Returns a new tensor with the exponential of the elements of the input tensor input.
 THS_API Tensor THSTensor_exp(const Tensor twrapper);
@@ -251,6 +266,9 @@ THS_API Tensor THSTensor_mul(const Tensor left, const Tensor right);
 // This operation is in place.
 THS_API void THSTensor_mul_(const Tensor left, const Tensor right);
 
+// Returns the matrix norm or vector norm of a given tensor.
+THS_API Tensor THSTensor_norm(const Tensor tensor, const int64_t dimension, const bool keep_dimension);
+
 // Multiplies each element of the target tensor with the scalar value and returns a new resulting tensor.
 THS_API Tensor THSTensor_mulS(const Tensor twrapper, const float scalar);
 
@@ -270,3 +288,6 @@ THS_API void THSTensor_sub_(const Tensor left, const Tensor right);
 
 // Returns the sum of all elements in the input tensor.
 THS_API Tensor THSTensor_sum(const Tensor twrapper);
+
+// Returns the sum of all elements over the input dimensions in the input tensor.
+THS_API Tensor THSTensor_sum1(const Tensor tensor, const int64_t * dimensions, int length, bool keep_dimension);

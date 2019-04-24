@@ -20,7 +20,7 @@ THS_API NNModule THSNN_conv2dModule(
 
 THS_API NNModule THSNN_new_module(const char ** names, at::Tensor ** parameters, const bool * require_grad, const int length);
 
-THS_API bool THSNN_has_parameter(const NNModule module, const char * name);
+THS_API int THSNN_has_parameter(const NNModule module, const char * name);
 
 THS_API Tensor THSNN_get_parameter(const NNModule module, const char * name);
 
@@ -36,7 +36,7 @@ THS_API void THSNN_get_parameters(
     Tensor* (*allocator1)(size_t length));
 
 // Whether the module is in train mode.
-THS_API bool THSNN_is_training(NNModule module);
+THS_API int THSNN_is_training(NNModule module);
 
 // Notify the module to run in train mode.
 THS_API void THSNN_train(NNModule module);
@@ -80,7 +80,7 @@ THS_API Tensor THSNN_conv2DModuleApply(
     const Tensor tensor);
 
 // Whether the linear module was setup with bias or not.
-THS_API bool THSNN_linear_with_bias(const NNModule module);
+THS_API int THSNN_linear_with_bias(const NNModule module);
 
 // Returns the bias term of the linear module.
 THS_API Tensor THSNN_linear_get_bias(const NNModule module);

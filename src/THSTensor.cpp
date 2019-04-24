@@ -2,7 +2,7 @@
 
 Tensor THSTensor_zeros(
     const int64_t * sizes,
-    const int lenght,
+    const int length,
     const int8_t scalar_type,
     const char * device,
     const bool requires_grad)
@@ -12,12 +12,12 @@ Tensor THSTensor_zeros(
         .device(device)
         .requires_grad(requires_grad);
 
-    return new torch::Tensor(torch::zeros(at::IntList(sizes, lenght), options));
+    return new torch::Tensor(torch::zeros(at::IntList(sizes, length), options));
 }
 
 Tensor THSTensor_ones(
     const int64_t * sizes, 
-    const int lenght, 
+    const int length, 
     const int8_t scalar_type, 
     const char * device, 
     const bool requires_grad)
@@ -27,12 +27,12 @@ Tensor THSTensor_ones(
         .device(device)
         .requires_grad(requires_grad);
 
-    return new torch::Tensor(torch::ones(at::IntList(sizes, lenght), options));
+    return new torch::Tensor(torch::ones(at::IntList(sizes, length), options));
 }
 
 Tensor THSTensor_empty(
     const int64_t * sizes,
-    const int lenght,
+    const int length,
     const int8_t scalar_type,
     const char * device,
     const bool requires_grad)
@@ -42,32 +42,32 @@ Tensor THSTensor_empty(
         .device(device)
         .requires_grad(requires_grad);
 
-    return new torch::Tensor(torch::empty(at::IntList(sizes, lenght), options));
+    return new torch::Tensor(torch::empty(at::IntList(sizes, length), options));
 }
 
 Tensor THSTensor_new(
     void * data, 
     const int64_t * sizes, 
-    const int szlenght, 
+    const int szlength, 
     const int64_t * strides, 
-    const int stlenght, 
+    const int stlength, 
     int8_t scalar_type)
 {
     auto options = at::TensorOptions()
         .dtype(at::ScalarType(scalar_type));
 
-    return new torch::Tensor(torch::from_blob(data, at::IntList(sizes, szlenght), at::IntList(strides, stlenght), options));
+    return new torch::Tensor(torch::from_blob(data, at::IntList(sizes, szlength), at::IntList(strides, stlength), options));
 }
 
 Tensor THSTensor_newLong(
     int64_t * data,
     const int64_t * sizes,
-    const int szlenght,
+    const int szlength,
     const int64_t * strides,
-    const int stlenght,
+    const int stlength,
     int8_t scalar_type)
 {
-    return new torch::Tensor(torch::from_blob(data, at::IntList(sizes, szlenght), at::IntList(strides, stlenght), at::kLong));
+    return new torch::Tensor(torch::from_blob(data, at::IntList(sizes, szlength), at::IntList(strides, stlength), at::kLong));
 }
 
 Tensor THSTensor_newByteScalar(char data)
@@ -102,7 +102,7 @@ Tensor THSTensor_newFloatScalar(float data)
 
 Tensor THSTensor_rand(
     const int64_t * sizes,
-    const int lenght,
+    const int length,
     const int8_t scalar_type,
     const char * device,
     const bool requires_grad)
@@ -112,12 +112,12 @@ Tensor THSTensor_rand(
         .device(device)
         .requires_grad(requires_grad);
 
-    return new torch::Tensor(torch::rand(at::IntList(sizes, lenght), options));
+    return new torch::Tensor(torch::rand(at::IntList(sizes, length), options));
 }
 
 Tensor THSTensor_randn(
     const int64_t * sizes, 
-    const int lenght, 
+    const int length, 
     const int8_t scalar_type, 
     const char * device, 
     const bool requires_grad)
@@ -127,14 +127,14 @@ Tensor THSTensor_randn(
         .device(device)
         .requires_grad(requires_grad);
 
-    return new torch::Tensor(torch::randn(at::IntList(sizes, lenght), options));
+    return new torch::Tensor(torch::randn(at::IntList(sizes, length), options));
 }
 
 Tensor THSTensor_sparse(
     Tensor indices,
     Tensor values,
     const int64_t * sizes,
-    const int lenght,
+    const int length,
     const int8_t scalar_type,
     const char * device,
     const bool requires_grad)
@@ -147,7 +147,7 @@ Tensor THSTensor_sparse(
     auto i = torch::autograd::as_variable_ref(*indices).data();
     auto v = torch::autograd::as_variable_ref(*values).data();
 
-    return new torch::Tensor(torch::sparse_coo_tensor(i, v, at::IntList(sizes, lenght), options));
+    return new torch::Tensor(torch::sparse_coo_tensor(i, v, at::IntList(sizes, length), options));
 }
 
 int64_t THSTensor_ndimension(const Tensor tensor)
@@ -205,16 +205,24 @@ const char* THSTensor_deviceType(const Tensor tensor)
     return make_sharable_string(device_type);
 }
 
-bool THSTensor_isSparse(const Tensor tensor)
+int THSTensor_isSparse(const Tensor tensor)
 {
-    bool result = tensor->is_sparse();
-    return result;
+    return tensor->is_sparse();
 }
 
-bool THSTensor_isVariable(const Tensor tensor)
+int THSTensor_isVariable(const Tensor tensor)
 {
-    bool result = tensor->is_variable();
-    return result;
+    return tensor->is_variable();
+}
+
+Tensor THSTensor_indices(Tensor tensor)
+{
+    return new torch::Tensor(tensor->_indices());
+}
+
+Tensor THSTensor_values(Tensor tensor)
+{
+    return new torch::Tensor(tensor->_values());
 }
 
 Tensor THSTensor_cpu(const Tensor tensor)
@@ -236,6 +244,11 @@ Tensor THSTensor_grad(const Tensor tensor)
 void THSTensor_backward(Tensor tensor)
 {
     tensor->backward();
+}
+
+Tensor THSTensor_to_dense(Tensor tensor)
+{
+    return new torch::Tensor(tensor->to_dense());
 }
 
 Tensor THSTensor_cat(const Tensor* tensors, const int length, const int64_t dim)
@@ -323,15 +336,24 @@ Tensor THSTensor_bmm(const Tensor batch1, const Tensor batch2)
     return new torch::Tensor(batch1->bmm(*batch2));
 }
 
+Tensor THSTensor_div(const Tensor left, const Tensor right)
+{
+    return new torch::Tensor(left->div(*right));
+}
+
+void THSTensor_div_(const Tensor left, const Tensor right)
+{
+    left->div_(*right);
+}
+
 Tensor THSTensor_eq(const Tensor left, const Tensor right)
 {
     return new torch::Tensor(left->eq(*right));
 }
 
-bool THSTensor_equal(const Tensor left, const Tensor right)
+int THSTensor_equal(const Tensor left, const Tensor right)
 {
-    bool result = left->equal(*right);
-    return result;
+    return left->equal(*right);
 }
 
 Tensor THSTensor_exp(const Tensor tensor)
@@ -369,6 +391,11 @@ Tensor THSTensor_mulS(const Tensor tensor, const float scalar)
     return new torch::Tensor(tensor->mul(scalar));
 }
 
+Tensor THSTensor_norm(const Tensor tensor, const int64_t dimension, const bool keep_dimension)
+{
+    return new torch::Tensor(tensor->norm(0, dimension, keep_dimension));
+}
+
 Tensor THSTensor_pow(const Tensor tensor, const float scalar)
 {
     return new torch::Tensor(tensor->pow(scalar));
@@ -392,4 +419,9 @@ void THSTensor_sub_(const Tensor left, const Tensor right)
 Tensor THSTensor_sum(const Tensor tensor)
 {
     return new torch::Tensor(tensor->sum());
+}
+
+Tensor THSTensor_sum1(const Tensor tensor, const int64_t * dimensions, int length, bool keep_dimension)
+{
+    return new torch::Tensor(tensor->sum(at::IntList(dimensions, length), keep_dimension));
 }

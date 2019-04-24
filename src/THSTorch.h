@@ -8,4 +8,4 @@
 THS_API void THSTorch_seed(const int64_t seed);
 
 // Sets manually the seed.
-THS_API bool THSTorch_isCudaAvailable();
+THS_API int THSTorch_isCudaAvailable();

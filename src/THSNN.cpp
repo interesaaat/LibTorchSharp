@@ -50,10 +50,9 @@ NNModule THSNN_new_module(const char ** names, at::Tensor ** parameters, const b
     return new std::shared_ptr<torch::nn::Module>(module);
 }
 
-bool THSNN_has_parameter(const NNModule module, const char * name)
+int THSNN_has_parameter(const NNModule module, const char * name)
 {
-    bool result = (*module)->named_parameters().contains(name);
-    return result;
+    return (*module)->named_parameters().contains(name);
 }
 
 Tensor THSNN_get_parameter(const NNModule module, const char * name)
@@ -92,10 +91,9 @@ void THSNN_get_named_parameters(
     }
 }
 
-bool THSNN_is_training(NNModule module)
+int THSNN_is_training(NNModule module)
 {
-    bool result = (*module)->is_training();
-    return result;
+    return (*module)->is_training();
 }
 
 void THSNN_train(NNModule module)
@@ -169,10 +167,9 @@ Tensor THSNN_conv2DModuleApply(
     return new torch::Tensor(result);
 }
 
-bool THSNN_linear_with_bias(const NNModule module)
+int THSNN_linear_with_bias(const NNModule module)
 {
-    bool result = (*module)->as<torch::nn::Linear>()->options.with_bias_;
-    return result;
+    return (*module)->as<torch::nn::Linear>()->options.with_bias_;
 }
 
 Tensor THSNN_linear_get_bias(const NNModule module)
@@ -293,18 +290,18 @@ Tensor THSNN_lossPoissonNLL(
     return nullptr;
 }
 
-Optimizer THSNN_optimizerAdam(const Tensor* parameters, const int lenght, const double learnig_rate)
+Optimizer THSNN_optimizerAdam(const Tensor* parameters, const int length, const double learnig_rate)
 {
-    auto  params = toTensors<at::Tensor>((torch::Tensor**)parameters, lenght);
+    auto  params = toTensors<at::Tensor>((torch::Tensor**)parameters, length);
 
     auto optimizer = torch::optim::Adam(params, learnig_rate);
 
     return new std::shared_ptr<torch::optim::Optimizer>(std::make_shared<torch::optim::Adam>(torch::optim::Adam(params, learnig_rate)));
 }
 
-Optimizer THSNN_optimizerSGD(const Tensor* parameters, const int lenght, const double learnig_rate, const double momentum)
+Optimizer THSNN_optimizerSGD(const Tensor* parameters, const int length, const double learnig_rate, const double momentum)
 {
-    auto  params = toTensors<at::Tensor>((torch::Tensor**)parameters, lenght);
+    auto  params = toTensors<at::Tensor>((torch::Tensor**)parameters, length);
     auto options = torch::optim::SGDOptions(learnig_rate)
         .momentum(momentum);
 

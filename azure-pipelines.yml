@@ -11,7 +11,7 @@ steps:
   displayName: Download and setup libtorch/Linux
 
 - script: |
-    cmake -DTorch_DIR=.linux/libtorch/share/cmake/Torch .
+    cmake -DTorch_DIR=linux/libtorch/share/cmake/Torch .
   displayName: Generate project files
 
 - script: |

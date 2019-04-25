@@ -1,0 +1,19 @@
+pool:
+  vmImage: 'Ubuntu 16.04'
+  
+variables:
+  buildConfiguration: 'Release'
+
+steps:
+- script: |
+    curl -O https://download.pytorch.org/libtorch/cpu/libtorch-win-shared-with-deps-latest.zip
+    unzip -d linux libtorch-shared-with-deps-latest.zip
+  displayName: Download and setup libtorch/Linux
+
+- script: |
+    /cmake -DTorch_DIR=.linux/libtorch/share/cmake/Torch .
+  displayName: Generate project files
+
+- script: |
+    make
+  displayName: Build

@@ -15,5 +15,5 @@ steps:
   displayName: Generate project files
 
 - script: |
-    dotnet build --configuration $(buildConfiguration)
+    dotnet build libTorchSharp.sln --configuration $(buildConfiguration)
   displayName: Build

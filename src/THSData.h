@@ -10,6 +10,7 @@ class DatasetIteratorBase
 public:
     explicit
     DatasetIteratorBase() {}
+    virtual ~DatasetIteratorBase() = 0;
     virtual size_t getSize() = 0;
     virtual bool moveNext() = 0;
     virtual void current(Tensor* data, Tensor* target) = 0;

@@ -6,12 +6,12 @@ variables:
 
 steps:
 - script: |
-    curl -O https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-latest.zip
-    unzip -d linux libtorch-shared-with-deps-latest.zip
-  displayName: Download and setup libtorch/Linux
+    curl -O https://download.pytorch.org/libtorch/cpu/libtorch-macos-latest.zip
+    unzip -d mac libtorch-macos-latest.zip
+  displayName: Download and setup libtorch/Mac
 
 - script: |
-    cmake -DTorch_DIR=linux/libtorch/share/cmake/Torch .
+    cmake -DTorch_DIR=mac/libtorch/share/cmake/Torch .
   displayName: Generate project files
 
 - script: |

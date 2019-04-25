@@ -1,8 +1,10 @@
 # libTorchSharp
 
 |System | Status |
-|:---|----------------:|
-|**Linux**|[![Build Status](https://dev.azure.com/mainterl/LibTorchSharp/_apis/build/status/interesaaat.LibTorchSharp?branchName=master)](https://dev.azure.com/mainterl/LibTorchSharp/_build/latest?definitionId=1&branchName=master)|
+|:---|:----------------:|
+|**Linux**|[![Build Status](https://dev.azure.com/mainterl/LibTorchSharp/_apis/build/status/LibTorchSharp-CI-linux?branchName=master)](https://dev.azure.com/mainterl/LibTorchSharp/_build/latest?definitionId=6&branchName=master)|
+|**MaxOS**|[![Build Status](https://dev.azure.com/mainterl/LibTorchSharp/_apis/build/status/LibTorchSharp-CI-macos?branchName=master)](https://dev.azure.com/mainterl/LibTorchSharp/_build/latest?definitionId=5&branchName=master)|
+|**Windows**|[![Build Status](https://dev.azure.com/mainterl/LibTorchSharp/_apis/build/status/LibTorchSharp-CI-win?branchName=master)](https://dev.azure.com/mainterl/LibTorchSharp/_build/latest?definitionId=8&branchName=master)|
 
 ## Building instruction
 

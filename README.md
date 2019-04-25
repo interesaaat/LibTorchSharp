@@ -1,3 +1,7 @@
+
+|**Linux**|[![Build Status](https://dev.azure.com/mainterl/LibTorchSharp/_apis/build/status/interesaaat.LibTorchSharp?branchName=master)](https://dev.azure.com/mainterl/LibTorchSharp/_build/latest?definitionId=1&branchName=master)|
+|:---|----------------:|
+
 # libTorchSharp
 
 ## Building instruction

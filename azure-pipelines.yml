@@ -17,3 +17,13 @@ steps:
 - script: |
     make
   displayName: Build
+
+- task: CopyFiles@2
+  inputs:
+    contents: 'libTorchSharp.so'
+    targetFolder: $(Build.ArtifactStagingDirectory)
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: $(Build.ArtifactStagingDirectory)
+    artifactName: MyBuildOutputs

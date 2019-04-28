@@ -260,10 +260,10 @@ Tensor THSNN_lossPoissonNLL(
         loss = (*input) - (*target) * torch::log(*input + eps);
     }
     
-    if (full)
+    if (full) 
     {
         auto mask = (*target) > 1;
-        loss[mask] += ((*target) * torch::log(*target) - (*target) + 0.5 * torch::log(2 * M_PI * (*target)))[mask];
+        loss.masked_select(mask) += ((*target) * at::log(*target) - (*target) + 0.5 * at::log(2 * M_PI * (*target))).masked_select(mask);
     }
 
     if (reduction == Reduction::None)

@@ -14,6 +14,10 @@ steps:
     cmake -DTorch_DIR=win/libtorch/share/cmake/Torch . -G "Visual Studio 15 2017 Win64"
   displayName: Generate project files
 
-- script: |
-    dotnet build --configuration $(buildConfiguration)
+- task: VSBuild@1
+  inputs: 
+    solution: 'libTorchSharp.sln'
+    configuration: release
+    platform: x64
+    msbuildArchitecture: x86
   displayName: Build

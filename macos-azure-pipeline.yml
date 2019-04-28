@@ -1,8 +1,5 @@
 pool:
   vmImage: 'macOS-10.13'
-  
-variables:
-  buildConfiguration: 'Release'
 
 steps:
 - script: |

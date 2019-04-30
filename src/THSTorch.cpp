@@ -11,3 +11,10 @@ int THSTorch_isCudaAvailable()
 {
     return torch::cuda::is_available();
 }
+
+const char * THSTorch_get_and_reset_last_err()
+{
+    char *tmp = torch_last_err;
+    torch_last_err = nullptr;
+    return tmp;
+}

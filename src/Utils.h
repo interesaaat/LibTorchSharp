@@ -18,20 +18,25 @@ typedef std::shared_ptr<torch::jit::TensorType> * JITTensorType;
 
 #define THS_API TH_API
 
+#ifdef _DEBUG
+#define DEBUG
+#endif
+
+#ifdef DEBUG
 #define CATCH(x) \
   try { \
     x \
-  } catch (const exception& e) { \
+  } catch (const c10::Error e) { \
       torch_last_err = strdup(e.what()); \
   }
+#else
+#define CATCH(x) x
+#endif
 
 // Utility method used to built sharable strings.
 const char * make_sharable_string(const std::string str);
 
-// Returns the latest error. This is thread-local.
-THS_API const char * get_and_reset_last_err(); 
-
-// Method concerting arrays of tensor poninters into arrays of tensors.
+// Method concerting arrays of tensor pointers into arrays of tensors.
 template<class T>
 std::vector<T> toTensors(torch::Tensor ** tensorPtrs, const int length)
 {

@@ -3,7 +3,7 @@
 #include <cstring>
 #include <fstream>
 
-extern thread_local char * torch_last_err = nullptr;
+extern thread_local char * torch_last_err = NULL;
 
 const char * make_sharable_string(const std::string str)
 {
@@ -12,11 +12,4 @@ const char * make_sharable_string(const std::string str)
     strncpy(result, str.c_str(), size);
     result[size - 1] = '\0';
     return result;
-}
-
-const char * get_and_reset_last_err() 
-{
-    char *tmp = torch_last_err;
-    torch_last_err = nullptr;
-    return tmp;
 }

@@ -124,7 +124,7 @@ THS_API Tensor THSNN_lossNLL(
 
 // Negative log likelihood loss with Poisson distribution of target.
 // See https://pytorch.org/docs/stable/nn.html#poisson-nll-loss for further details.
-THS_API Tensor THSNN_lossPoissonNLL(
+THS_API Tensor THSNN_loss_poisson_nll(
     const Tensor input,
     const Tensor target,
     const bool logInput,

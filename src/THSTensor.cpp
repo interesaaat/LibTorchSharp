@@ -107,12 +107,14 @@ Tensor THSTensor_rand(
     const char * device,
     const bool requires_grad)
 {
-    auto options = at::TensorOptions()
+    CATCH(
+        auto options = at::TensorOptions()
         .dtype(at::ScalarType(scalar_type))
         .device(device)
         .requires_grad(requires_grad);
 
-    return new torch::Tensor(torch::rand(at::IntList(sizes, length), options));
+        return new torch::Tensor(torch::rand(at::IntList(sizes, length), options));
+    )
 }
 
 Tensor THSTensor_randn(

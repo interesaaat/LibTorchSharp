@@ -177,6 +177,11 @@ void * THSTensor_data(const Tensor tensor)
     return tensor->data_ptr();
 }
 
+Scalar THSTensor_item(const Tensor tensor)
+{
+    return new torch::Scalar(tensor->item());
+}
+
 int8_t THSTensor_type(const Tensor tensor)
 {
     return (int8_t)tensor->scalar_type();
@@ -195,6 +200,23 @@ Tensor THSTensor_get2(const Tensor tensor, int64_t index1, int64_t index2)
 Tensor THSTensor_get3(const Tensor tensor, int64_t index1, int64_t index2, int64_t index3)
 {
     return new torch::Tensor((*tensor)[index1, index2, index3]);
+}
+
+void THSTensor_set1(const Tensor tensor, int64_t index, Scalar value)
+{
+    CATCH(
+        (*tensor)[index] = *value;
+    )
+}
+
+void THSTensor_set2(const Tensor tensor, int64_t index1, int64_t index2, Scalar value)
+{
+    (*tensor)[index1, index2] = *value;
+}
+
+void THSTensor_set3(const Tensor tensor, int64_t index1, int64_t index2, int64_t index3, Scalar value)
+{
+    (*tensor)[index1, index2, index3] = *value;
 }
 
 const char* THSTensor_deviceType(const Tensor tensor)

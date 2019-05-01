@@ -110,6 +110,10 @@ THS_API void THSTensor_dispose(const Tensor twrapper);
 // (see the note [Tensor versus Variable in C++] in Aten\core\Tensor.h)
 THS_API void * THSTensor_data(const Tensor twrapper);
 
+// Returns the value of this tensor as a Scalar. 
+// This only works for tensors with one element.
+THS_API Scalar THSTensor_item(const Tensor tensor);
+
 // Returns the sub-tensor identified by the index.
 THS_API Tensor THSTensor_get1(const Tensor tensor, int64_t index);
 
@@ -118,6 +122,15 @@ THS_API Tensor THSTensor_get2(const Tensor tensor, int64_t index1, int64_t index
 
 // Returns the sub-tensor identified by the indexes.
 THS_API Tensor THSTensor_get3(const Tensor tensor, int64_t index1, int64_t index2, int64_t index3);
+
+// Set the sub-tensor identified by the index to value.
+THS_API void THSTensor_set1(const Tensor tensor, int64_t index, Scalar value);
+
+// Set the sub-tensor identified by the indexes to value.
+THS_API void THSTensor_set2(const Tensor tensor, int64_t index1, int64_t index2, Scalar value);
+
+// Set the sub-tensor identified by the indexes to value.
+THS_API void THSTensor_set3(const Tensor tensor, int64_t index1, int64_t index2, int64_t index3, Scalar value);
 
 // Returns the inner type of the tensor.
 THS_API int8_t THSTensor_type(const Tensor twrapper);

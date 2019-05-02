@@ -36,7 +36,7 @@ Scalar THSTorch_itos(int value)
 
 Scalar THSTorch_ltos(long value)
 {
-    return new torch::Scalar(value);
+    return new torch::Scalar(int64_t(value));
 }
 
 Scalar THSTorch_ftos(float value)

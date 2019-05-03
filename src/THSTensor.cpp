@@ -425,9 +425,9 @@ void THSTensor_mul_(const Tensor left, const Tensor right)
     left->mul_(*right);
 }
 
-Tensor THSTensor_mulS(const Tensor tensor, const float scalar)
+Tensor THSTensor_mulS(const Tensor tensor, const Scalar scalar)
 {
-    return new torch::Tensor(tensor->mul(scalar));
+    return new torch::Tensor(tensor->mul(*scalar));
 }
 
 Tensor THSTensor_norm(const Tensor tensor, const int64_t dimension, const bool keep_dimension)
@@ -435,9 +435,9 @@ Tensor THSTensor_norm(const Tensor tensor, const int64_t dimension, const bool k
     return new torch::Tensor(tensor->norm(0, dimension, keep_dimension));
 }
 
-Tensor THSTensor_pow(const Tensor tensor, const float scalar)
+Tensor THSTensor_pow(const Tensor tensor, const Scalar scalar)
 {
-    return new torch::Tensor(tensor->pow(scalar));
+    return new torch::Tensor(tensor->pow(*scalar));
 }
 
 Tensor THSTensor_sigmoid(const Tensor tensor)

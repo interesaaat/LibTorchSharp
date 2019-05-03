@@ -292,10 +292,10 @@ THS_API void THSTensor_mul_(const Tensor left, const Tensor right);
 THS_API Tensor THSTensor_norm(const Tensor tensor, const int64_t dimension, const bool keep_dimension);
 
 // Multiplies each element of the target tensor with the scalar value and returns a new resulting tensor.
-THS_API Tensor THSTensor_mulS(const Tensor twrapper, const float scalar);
+THS_API Tensor THSTensor_mulS(const Tensor twrapper, const Scalar scalar);
 
 // Takes the power of each element in input with exponent and returns a tensor with the result.
-THS_API Tensor THSTensor_pow(const Tensor twrapper, const float scalar);
+THS_API Tensor THSTensor_pow(const Tensor twrapper, const Scalar scalar);
 
 // Returns a new tensor with the sigmoid of the elements of input.
 THS_API Tensor THSTensor_sigmoid(const Tensor twrapper);

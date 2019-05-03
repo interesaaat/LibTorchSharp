@@ -325,6 +325,11 @@ Tensor THSTensor_add(const Tensor left, const int value, const Tensor right)
     return new torch::Tensor(left->add(*right, value));
 }
 
+Tensor THSTensor_addS(const Tensor left, const Scalar right)
+{
+    return new torch::Tensor(left->add(*right));
+}
+
 void THSTensor_add_(const Tensor left, const int value, const Tensor right)
 {
     left->add_(*right, value);
@@ -386,6 +391,11 @@ Tensor THSTensor_divS(const Tensor left, const int right)
 }
 
 Tensor THSTensor_eq(const Tensor left, const Tensor right)
+{
+    return new torch::Tensor(left->eq(*right));
+}
+
+Tensor THSTensor_eqS(const Tensor left, const Scalar right)
 {
     return new torch::Tensor(left->eq(*right));
 }

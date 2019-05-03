@@ -210,6 +210,9 @@ THS_API Tensor THSTensor_view(const Tensor twrapper, const int64_t * shape, cons
 // and added to each element of the tensor input. The resulting tensor is returned.
 THS_API Tensor THSTensor_add(const Tensor left, const int value, const Tensor right);
 
+// Each element of the tensor other is increased by the scalar value.
+THS_API Tensor THSTensor_addS(const Tensor left, const Scalar right);
+
 // Each element of the tensor other is multiplied by the scalar value 
 // and added to each element of the tensor input. The resulting tensor is returned.
 // This operation is in place.
@@ -261,6 +264,9 @@ THS_API Tensor THSTensor_divS(const Tensor left, const int right);
 
 // Computes element-wise equality.
 THS_API Tensor THSTensor_eq(const Tensor left, const Tensor right);
+
+// Computes element-wise equality.
+THS_API Tensor THSTensor_eqS(const Tensor left, const Scalar right);
 
 // True if two tensors have the same size and elements, False otherwise.
 THS_API int THSTensor_equal(const Tensor left, const Tensor right);

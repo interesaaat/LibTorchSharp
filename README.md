@@ -10,7 +10,7 @@
 
 ### Requirements
 * cmake
-* libtorch download [here](https://pytorch.org/get-started/locally/)
+* libtorch download [here](https://pytorch.org/get-started/locally/)(to get version 1.0.1 just change `-latest` with `-1.0.1`)
 
 ### How to generate project files
  * Windows: `cmake -DTorch_DIR="YOUR_libtorch_DIR\share\cmake\Torch" . -G "Visual Studio 15 2017 Win64"`

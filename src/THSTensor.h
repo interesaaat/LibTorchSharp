@@ -138,6 +138,12 @@ THS_API int8_t THSTensor_type(const Tensor twrapper);
 // Returns a printable version of the device type storing the tensor.
 THS_API const char* THSTensor_deviceType(const Tensor twrapper);
 
+// Wheter the tensor requires grad or not.
+THS_API bool THSTensor_requires_grad(const Tensor tensor);
+
+// Set the value for requires grad.
+THS_API Tensor THSTensor_set_requires_grad(const Tensor tensor, const bool requires_grad);
+
 // Returns whether the input tensor is sparse or not.
 THS_API int THSTensor_isSparse(const Tensor twrapper);
 

@@ -229,6 +229,16 @@ const char* THSTensor_deviceType(const Tensor tensor)
     return make_sharable_string(device_type);
 }
 
+bool THSTensor_requires_grad(const Tensor tensor)
+{
+    return tensor->requires_grad();
+}
+
+Tensor THSTensor_set_requires_grad(const Tensor tensor, const bool requires_grad)
+{
+    return new torch::Tensor(tensor->set_requires_grad(requires_grad));
+}
+
 int THSTensor_isSparse(const Tensor tensor)
 {
     return tensor->is_sparse();

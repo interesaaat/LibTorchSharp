@@ -179,6 +179,10 @@ THS_API Tensor THSTensor_to_dense(Tensor tensor);
 // See https://pytorch.org/docs/stable/torch.html#torch.cat for examples.
 THS_API Tensor THSTensor_cat(const Tensor* twrapper, const int length, const int64_t dim);
 
+// Returns a contiguous tensor containing the same data as the input tensor. 
+// If the input tensor is contiguous, this function returns input.
+THS_API Tensor THSTensor_contiguous(const Tensor input);
+
 // Returns a new tensor which indexes the input tensor along dimension dim using the entries in index.
 THS_API Tensor THSTensor_index_select(Tensor tensor, int64_t dimension, Tensor index);
 
@@ -259,6 +263,9 @@ THS_API Tensor THSTensor_baddbmm(
 // Performs a batch matrix-matrix product of matrices stored in batch1 and batch2.
 THS_API Tensor THSTensor_bmm(const Tensor b1wrapper, const Tensor b2wrapper);
 
+// Clamp all elements in input into the range [ min, max ] and return a resulting tensor.
+THS_API Tensor THSTensor_clamp(const Tensor input, const Scalar min, const Scalar max);
+
 // Returns left / right. 
 THS_API Tensor THSTensor_div(const Tensor left, const Tensor right);
 
@@ -267,6 +274,9 @@ THS_API void THSTensor_div_(const Tensor left, const Tensor right);
 
 // Returns left / right. 
 THS_API Tensor THSTensor_divS(const Tensor left, const int right);
+
+// Computes input > other element-wise.
+THS_API Tensor THSTensor_gtS(const Tensor input, const Scalar other);
 
 // Computes element-wise equality.
 THS_API Tensor THSTensor_eq(const Tensor left, const Tensor right);
